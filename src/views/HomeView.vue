@@ -12,6 +12,9 @@
       </div>
       <div class="login-screen-body">
         <form name="login" @submit.prevent="login">
+          <div class="errorMessageContainer" v-if="this.errors.length > 0">
+              <p v-for="error in this.errors"> {{ error }}</p>
+          </div>
           <div class="form-inputs">
             <div class="form-control">
               <label for="username">Username: </label>
@@ -36,16 +39,18 @@
     data() {
       return {
         loginUsername : '',
-        loginPassword: ''
+        loginPassword: '',
+        errors: []
       }
     },
     methods : {
       login() {
-        if(this.loginUsername != 'Robin' && this.loginPassword != 'test123') {
-          this.$toast.error('De ingevoerde gebruikersnaam of het ingevoerde wachtwoord is ongeldig.')
+
+        if (this.loginUsername == "" && this.loginPassword == "") {
+          this.errors.push("Het inlogveld is leeg");
         } else {
-          this.$router.push('/admin')
-        }
+          this.$toast.success("U bent successvol ingelogd.");
+        }      
       }
     }
   }
@@ -73,5 +78,10 @@
 }
 .login-screen-body form .form-inputs {
   display: flex;
+}
+.login-screen-body form .errorMessageContainer p {
+  color: red;
+  font-weight: bold;
+  font-size: 0.8rem;
 }
 </style>
