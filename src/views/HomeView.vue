@@ -34,13 +34,15 @@
   </main>
 </template>
 <script>
+  import LoginDTO from '../models/LoginDTO'
   export default {
     name: 'Home Screen',
     data() {
       return {
         loginUsername : '',
         loginPassword: '',
-        errors: []
+        errors: [],
+        authUser: new LoginDTO()
       }
     },
     methods : {
@@ -49,7 +51,9 @@
         if (this.loginUsername == "" && this.loginPassword == "") {
           this.errors.push("Het inlogveld is leeg");
         } else {
-          this.$toast.success("U bent successvol ingelogd.");
+          this.authUser.username = this.loginUsername;
+          this.authUser.password = this.loginPassword;
+          this.$store.dispatch('login', this.authUser);
         }      
       }
     }
