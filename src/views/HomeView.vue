@@ -53,7 +53,19 @@
         } else {
           this.authUser.username = this.loginUsername;
           this.authUser.password = this.loginPassword;
-          this.$store.dispatch('login', this.authUser);
+          this.$store.dispatch('login', this.authUser)
+          .then(
+            success => {
+              this.$toast.success("Inloggen succesvol");
+            },
+            error => {
+              if (error.response.status === 401) {
+                this.$toast.error("De ingevoerde gebruikersnaam of het ingevoerde wachtwoord is ongeldig.");
+              } else {
+                this.$toast.error(error.message);
+              }
+            }
+          );
         }      
       }
     }

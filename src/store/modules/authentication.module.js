@@ -12,7 +12,17 @@ export const authentication = {
     actions: {
         login({ commit }, paramUser){
             const BASE_URL = store.getters.getBaseUrl;
-            authService.login(paramUser, BASE_URL);
+            return authService.login(paramUser, BASE_URL)
+            .then(
+                user => {
+                    // commit('loginSuccess', user);
+                    return Promise.resolve(user);
+                },
+                error => {
+                    // commit('loginFailure');
+                    return Promise.reject(error);
+                }
+            );
         },
         logout({ commit }) {
             authService.logout()
