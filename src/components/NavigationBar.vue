@@ -17,7 +17,7 @@ export default {
     name: 'Navigation bar',
     methods: {
         logout() {
-            this.$toast.success('U bent succesvol uitgelogd.')
+            this.$store.dispatch('logout');
             this.$router.push('/');
         }
     }
