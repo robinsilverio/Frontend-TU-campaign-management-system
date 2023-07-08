@@ -19,3 +19,19 @@ const router = createRouter({
 })
 
 export default router
+
+// This is for handling unauthorized access.
+router.beforeEach((to, from, next) => {
+  const publicPages = ['/'];
+  const authRequired = !publicPages.includes(to.path);
+  const loggedIn = localStorage.getItem('user');
+
+  if (authRequired && !loggedIn) {
+    next('/');
+  } else if (loggedIn && to.path === '/') {
+    next('/admin');
+  } else {
+    next();
+  }
+
+});
