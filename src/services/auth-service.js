@@ -15,14 +15,15 @@ export default class AuthService {
             }
           })
           .then(response => {
-            return response.data;
+            localStorage.setItem('user', JSON.stringify(response.data));
           })
           .catch(error => {
             throw error;
           });
         return response
     }
+    
     logout() {
-
+      localStorage.removeItem('user');
     }
 }

@@ -15,17 +15,28 @@ export const authentication = {
             return authService.login(paramUser, BASE_URL)
             .then(
                 user => {
-                    // commit('loginSuccess', user);
+                    commit('mutateLoginSuccess', user);
                     return Promise.resolve(user);
                 },
                 error => {
-                    // commit('loginFailure');
                     return Promise.reject(error);
                 }
             );
         },
         logout({ commit }) {
-            authService.logout()
+            commit('mutateLogout');
+            authService.logout();
         }
+    },
+    mutations : {
+        mutateLoginSuccess(state, user) {
+            state.status.loggedIn = true;
+            state.user = user;
+        },
+        mutateLogout(state) {
+            console.log("Loggin out");
+            state.status.loggedIn = false;
+            state.user = null;
+        },
     }
 }
