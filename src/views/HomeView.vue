@@ -57,13 +57,10 @@
           .then(
             success => {
               this.$toast.success("Inloggen succesvol");
+              this.$router.push("/admin");
             },
             error => {
-              if (error.response.status === 401) {
-                this.$toast.error("De ingevoerde gebruikersnaam of het ingevoerde wachtwoord is ongeldig.");
-              } else {
-                this.$toast.error(error.message);
-              }
+              this.$toast.error(error.response.data.message);
             }
           );
         }      
