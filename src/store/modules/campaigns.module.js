@@ -23,6 +23,15 @@ export const campaigns = {
                     },
                     error => { return Promise.reject(error); }
                 );
+        },
+        createCampaign({commit}) {
+
+        },
+        updateCampaign({commit}, paramCampaign) {
+
+        },
+        deleteCampaign({commit}, paramCampaign) {
+
         }
     },
     mutations: {

@@ -29,6 +29,7 @@ header, header .wrapper, header .logo {
 }
 header {
     background-color: var(--TU-color);
+    color: #FFF;
     padding: 5px;
     display: flex;
     justify-content: space-between;

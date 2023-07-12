@@ -1,8 +1,14 @@
 <script setup>
     import NavigationBar from '../components/NavigationBar.vue';
+    import WarningModal from "@/components/WarningModal.vue";
 </script>
 <template>
     <NavigationBar></NavigationBar>
+    <WarningModal
+        :list-of-selected-campaigns="selectedCampaigns"
+        v-if="this.userAction === 'delete'"
+        @onModalClosed="onModalClosed"
+    ></WarningModal>
     <main class="admin-panel">
         <div class="campaigns-sidebar">
             <div class="sidebar-menu">
@@ -14,7 +20,7 @@
                     <input type="checkbox" id="myCheckbox" v-model="campaignMapping.campaign.checked" @change="handleCampaignSelection(campaignMapping.campaign)">
                     <label>{{ campaignMapping.campaign.title }}</label>
                   </div>
-                  <button class="delete-btn">
+                  <button class="delete-btn" @click="openWarningModalUponDeletion(campaignMapping.campaign)">
                     &times;
                   </button>
                 </div>
@@ -29,7 +35,8 @@
         data() {
             return {
                 campaignMappings: [],
-                selectedCampaigns: []
+                selectedCampaigns: [],
+                userAction: ''
             }
         },
         methods: {
@@ -40,8 +47,15 @@
                     const indexOfCampaign = this.selectedCampaigns.indexOf(paramCampaign);
                     this.selectedCampaigns.splice(indexOfCampaign, 1);
                 }
-                console.log(this.selectedCampaigns);
-            }
+            },
+            openWarningModalUponDeletion(paramCampaign) {
+              this.userAction = 'delete';
+              this.selectedCampaigns.push(paramCampaign);
+            },
+            onModalClosed() {
+              this.userAction = '';
+              this.selectedCampaigns = [];
+            },
         },
         mounted() {
           this.$store.dispatch('retrieveCampaigns')
@@ -117,7 +131,7 @@
       cursor: pointer;
     }
 
-    .campaigns-sidebar .campaigns-list .campaign.delete-btn:hover {
+    .campaigns-sidebar .campaigns-list .campaign .delete-btn:hover {
       color: red;
     }
 
