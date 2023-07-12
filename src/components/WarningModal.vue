@@ -27,7 +27,7 @@ export default {
   },
   methods: {
     handleCampaignRemoval() {
-      console.log(this.listOfSelectedCampaigns[0] + " is removed");
+      this.$toast.success("Een item is succesvol verwijderd.")
       this.$emit('onModalClosed');
     },
     cancelDeletion() {
