@@ -14,7 +14,7 @@
 </template>
 <script>
 export default {
-    name: 'Navigation bar',
+    name: 'NavigationBar',
     methods: {
         logout() {
             this.$store.dispatch('logout');

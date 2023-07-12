@@ -13,7 +13,7 @@
       <div class="login-screen-body">
         <form name="login" @submit.prevent="login">
           <div class="errorMessageContainer" v-if="this.errors.length > 0">
-              <p v-for="error in this.errors"> {{ error }}</p>
+              <p v-for="(error, index) in this.errors" :key="index"> {{ error }}</p>
           </div>
           <div class="form-inputs">
             <div class="form-control">
@@ -36,7 +36,7 @@
 <script>
   import LoginDTO from '../models/LoginDTO'
   export default {
-    name: 'Home Screen',
+    name: 'HomeScreen',
     data() {
       return {
         loginUsername : '',
