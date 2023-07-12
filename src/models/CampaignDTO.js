@@ -1,42 +1,55 @@
 export default class CampaignDTO {
-    constructor(
+  constructor(
       campaignId,
-      campaignTitle,
-      campaignDescText,
-      campaignTermsURL,
-      campaignRibbonType,
+      campaignFolderId,
+      title,
+      campaignUrl,
+      startDate,
+      endDate,
+      type,
+      promoDescriptionText,
+      promoSummaryText,
+      ribbonType,
+      termsUrl,
       campaignClientGroups,
-      campaignStartDate,
-      campaignEndDate,
-      campaignFilterImageURL,
-      campaignFilterOverlayText,
-      campaignPromoImgURL,
-      campaignPromoImgAltText,
-      campaignPromoSummary,
-      campaignItems,
-      campaignStatus,
-      campaignWebsiteURL,
+      campaignTags,
+      rootIndicator,
+      filterImgUrl,
+      filterOverlayText,
+      promoImgUrl,
+      promoImgAltText,
+      campaignWebsiteUrl,
       campaignWebsiteText,
-      rootIndicator
-    ) {
-      this.campaignId = campaignId;
-      this.campaignTitle = campaignTitle;
-      this.campaignDescText = campaignDescText;
-      this.campaignTermsURL = campaignTermsURL;
-      this.campaignRibbonType = campaignRibbonType;
-      this.campaignClientGroups = campaignClientGroups;
-      this.campaignStartDate = campaignStartDate;
-      this.campaignEndDate = campaignEndDate;
-      this.campaignFilterImageURL = campaignFilterImageURL;
-      this.campaignFilterOverlayText = campaignFilterOverlayText;
-      this.campaignPromoImgURL = campaignPromoImgURL;
-      this.campaignPromoImgAltText = campaignPromoImgAltText;
-      this.campaignPromoSummary = campaignPromoSummary;
-      this.campaignItems = campaignItems;
-      this.campaignStatus = campaignStatus;
-      this.campaignWebsiteURL = campaignWebsiteURL;
-      this.campaignWebsiteText = campaignWebsiteText;
-      this.rootIndicator = rootIndicator;
-    }
+      appTitle,
+      appImageUrl,
+      appSummary,
+      relativeUrl,
+      campaignItems
+  ) {
+    this.campaignId = campaignId;
+    this.campaignFolderId = campaignFolderId;
+    this.title = title;
+    this.campaignUrl = campaignUrl;
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.type = type;
+    this.promoDescriptionText = promoDescriptionText;
+    this.promoSummaryText = promoSummaryText;
+    this.ribbonType = ribbonType;
+    this.termsUrl = termsUrl;
+    this.campaignClientGroups = campaignClientGroups;
+    this.campaignTags = campaignTags;
+    this.rootIndicator = rootIndicator;
+    this.filterImgUrl = filterImgUrl;
+    this.filterOverlayText = filterOverlayText;
+    this.promoImgUrl = promoImgUrl;
+    this.promoImgAltText = promoImgAltText;
+    this.campaignWebsiteUrl = campaignWebsiteUrl;
+    this.campaignWebsiteText = campaignWebsiteText;
+    this.appTitle = appTitle;
+    this.appImageUrl = appImageUrl;
+    this.appSummary = appSummary;
+    this.relativeUrl = relativeUrl;
+    this.campaignItems = campaignItems;
   }
-  
+}
