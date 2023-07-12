@@ -6,10 +6,10 @@
     <main class="admin-panel">
         <div class="campaigns-sidebar">
             <div class="sidebar-menu"></div>
-            <div class="campaigns-list" v-for="(campaign, index) in campaigns">
+            <div class="campaigns-list" v-for="(campaignMapping, index) in campaignMappings">
                 <div class="campaign">
-                    <input type="checkbox" id="myCheckbox" v-model="campaign.checked" @change="handleCampaignSelection(campaign)">
-                    <label for="myCheckbox">{{ campaign.campaignTitle }}</label>
+                    <input type="checkbox" id="myCheckbox" v-model="campaignMapping.campaign.checked" @change="handleCampaignSelection(campaignMapping.campaign)">
+                    <label for="myCheckbox">{{ campaignMapping.campaign.title }}</label>
                 </div>
             </div>
         </div>
@@ -18,46 +18,10 @@
 </template>
 <script>
     export default {
-        name: 'Admin Panel',
+        name: 'AdminPanel',
         data() {
             return {
-                campaigns: [
-                    {
-                        campaignId: '1',
-                        campaignTitle: 'Summer Sale',
-                        campaignDescText: 'Shop now and save!',
-                        // Add other campaign properties here
-                        checked: false
-                    },
-                    {
-                        campaignId: '2',
-                        campaignTitle: 'Back to School',
-                        campaignDescText: 'Get ready for the new school year!',
-                        // Add other campaign properties here
-                        checked: false
-                    },
-                    {
-                        campaignId: '3',
-                        campaignTitle: 'Holiday Promotion',
-                        campaignDescText: 'Celebrate the holidays with amazing deals!',
-                        // Add other campaign properties here
-                        checked: false
-                    },
-                    {
-                        campaignId: '4',
-                        campaignTitle: 'Clearance Sale',
-                        campaignDescText: 'Last chance to grab incredible discounts!',
-                        // Add other campaign properties here
-                        checked: false
-                    },
-                    {
-                        campaignId: '5',
-                        campaignTitle: 'Spring Collection Launch',
-                        campaignDescText: 'Discover the latest trends for the season!',
-                        // Add other campaign properties here
-                        checked: false
-                    }
-                ],
+                campaignMappings: [],
                 selectedCampaigns: []
             }
         },
@@ -69,7 +33,19 @@
                     const indexOfCampaign = this.selectedCampaigns.indexOf(paramCampaign);
                     this.selectedCampaigns.splice(indexOfCampaign, 1);
                 }
+                console.log(this.selectedCampaigns);
             }
+        },
+        mounted() {
+          this.$store.dispatch('retrieveCampaigns')
+              .then(
+                  success => {
+                    this.campaignMappings = this.$store.getters.getCampaigns;
+                  },
+                  error => {
+                    console.log(error);
+                  }
+              );
         }
     }
 </script>
