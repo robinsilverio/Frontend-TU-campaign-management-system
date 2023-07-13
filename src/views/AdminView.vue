@@ -78,9 +78,6 @@
     .admin-panel {
         display: flex;
     }
-    .admin-panel, .campaigns-sidebar, .display-component {
-        height: 100vh;
-    }
     .campaigns-sidebar {
         width: 25%;
         background-color: #FFF;
@@ -110,7 +107,6 @@
     }
     .campaigns-sidebar .campaigns-list {
         display: flex;
-        height: 50%;
         flex-direction: column;
         gap: 5px;
         border-top: 1px solid #A6A3AA;
@@ -142,6 +138,37 @@
 
     .campaigns-sidebar .campaigns-list .campaign .delete-btn-secondary:hover {
       color: red;
+    }
+
+    @media (min-width: 320px) {
+      main.admin-panel {
+        flex-direction: column;
+      }
+      main.admin-panel .campaigns-sidebar {
+        width: 100%;
+        height: 410px;
+      }
+      main.admin-panel .display-component {
+        height: 100vh;
+        width: 100vw;
+      }
+      main.admin-panel .campaigns-sidebar .campaigns-list {
+        overflow: auto;
+        height: 87%;
+      }
+    }
+
+    @media (min-width: 768px) {
+      main.admin-panel {
+        flex-direction: row;
+      }
+      main.admin-panel .campaigns-sidebar {
+        width: 50%;
+        height: 100vh;
+      }
+      main.admin-panel .campaigns-sidebar .campaigns-list {
+        height: 94%;
+      }
     }
 
 </style>
