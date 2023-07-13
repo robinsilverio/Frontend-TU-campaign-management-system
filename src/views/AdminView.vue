@@ -94,6 +94,7 @@
     .campaigns-sidebar .sidebar-menu {
       display: flex;
       justify-content: flex-end;
+      gap: 5px;
     }
     .campaigns-sidebar .sidebar-menu button {
         border: 0px solid;
