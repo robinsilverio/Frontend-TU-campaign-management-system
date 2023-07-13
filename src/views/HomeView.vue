@@ -92,6 +92,7 @@
 .login-screen-body form .form-inputs {
   display: flex;
 }
+.login-screen-body form .form-inputs label { color: #FFF; }
 .login-screen-body form .errorMessageContainer p {
   color: red;
   font-weight: bold;
