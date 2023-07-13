@@ -48,7 +48,7 @@
     methods : {
       login() {
 
-        if (this.loginUsername == "" && this.loginPassword == "") {
+        if (this.loginUsername === "" && this.loginPassword === "") {
           this.errors.push("Het inlogveld is leeg");
         } else {
           this.authUser.username = this.loginUsername;
@@ -79,7 +79,6 @@
 }
 .TU-CMT-login-screen {
   width: 500px;
-  height: 370px;
   background-color: var(--TU-color);
   border: 1px solid #BBB;
   padding: 10px;
@@ -89,13 +88,32 @@
 .TU-CMT-login-screen .login-screen-header h1 {
   color: var(--vt-c-white);
 }
-.login-screen-body form .form-inputs {
-  display: flex;
-}
 .login-screen-body form .form-inputs label { color: #FFF; }
 .login-screen-body form .errorMessageContainer p {
   color: red;
   font-weight: bold;
   font-size: 0.8rem;
 }
+
+@media (min-width: 320px) {
+  .login-screen-body { width: 100%; }
+  .login-screen-body form .form-inputs, .login-screen-body form .form-inputs .form-control {
+    display: flex;
+    flex-direction: column;
+  }
+  .login-screen-body form .form-inputs .form-control {
+    width: 100%;
+  }
+}
+
+@media (min-width: 502px) {
+  .login-screen-body form .form-inputs:not(.form-control) {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .login-screen-body form .form-inputs .form-control {
+    width: 45%;
+  }
+}
+
 </style>
