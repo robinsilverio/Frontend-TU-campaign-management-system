@@ -7,7 +7,6 @@ export class CampaignMapping {
             paramCampaign.campaignId,
             paramCampaign.campaignFolderId,
             paramCampaign.title,
-            paramCampaign.campaignUrl,
             paramCampaign.startDate,
             paramCampaign.endDate,
             paramCampaign.type,

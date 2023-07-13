@@ -29,7 +29,6 @@ export default class CampaignDTO {
     this.campaignId = campaignId;
     this.campaignFolderId = campaignFolderId;
     this.title = title;
-    this.campaignUrl = campaignUrl;
     this.startDate = startDate;
     this.endDate = endDate;
     this.type = type;
