@@ -16,12 +16,18 @@
               <button class="create-button">Create campaign</button>
             </div>
             <div class="campaigns-list">
-                <div class="campaign" v-for="(campaignMapping, index) in campaignMappings" :key="index">
-                  <div class="campaign-short-info">
-                    <input type="checkbox" id="myCheckbox" v-model="campaignMapping.checked" @change="handleCampaignSelection(campaignMapping)">
-                    <label>{{ campaignMapping.campaign.title }}</label>
-                  </div>
+              <div class="select-all-item">
+                <div class="default-info">
+                  <input type="checkbox" id="myCheckbox" v-model="selectAll" @change="handleSelectAllCampaigns()">
+                  <label>Selecteer alles</label>
                 </div>
+              </div>
+              <div class="campaign" v-for="(campaignMapping, index) in campaignMappings" :key="index">
+                <div class="campaign-short-info">
+                  <input type="checkbox" id="myCheckbox" v-model="campaignMapping.checked" @change="handleCampaignSelection(campaignMapping)">
+                  <label>{{ campaignMapping.campaign.title }}</label>
+                </div>
+              </div>
             </div>
         </div>
         <div class="display-component"></div>
@@ -34,10 +40,18 @@
             return {
                 campaignMappings: [],
                 selectedCampaigns: [],
+                selectAll: false,
                 userAction: ''
             }
         },
         methods: {
+            handleSelectAllCampaigns() {
+              if (this.selectAll) {
+                this.toggleAllCampaignsSelection(this.selectAll)
+              } else {
+                this.toggleAllCampaignsSelection(this.selectAll);
+              }
+            },
             handleCampaignSelection(paramCampaignMapping) {
               if (paramCampaignMapping.checked) {
                   this.selectedCampaigns.push(paramCampaignMapping.campaign);
@@ -60,6 +74,11 @@
                 if (campaignMapping.checked) campaignMapping.checked = false;
               });
             },
+            toggleAllCampaignsSelection(paramSelectAllStatus) {
+              this.campaignMappings.forEach(campaignMapping => {
+                campaignMapping.checked = paramSelectAllStatus;
+              });
+            }
         },
         mounted() {
           this.$store.dispatch('retrieveCampaigns')
@@ -111,21 +130,17 @@
         gap: 5px;
         border-top: 1px solid #A6A3AA;
     }
-    .campaigns-sidebar .campaigns-list .campaign {
+    .campaigns-sidebar .campaigns-list .campaign, .select-all-item {
         display: flex;
         justify-content: space-between;
         padding: 5px 0px;
     }
-    .campaigns-sidebar .campaigns-list .campaign .campaign-short-info {
+    .campaigns-sidebar .campaigns-list .campaign .campaign-short-info, .default-info {
         display: flex;
         gap: 20px;
     }
 
-    .campaigns-sidebar .campaigns-list .campaign .campaign-short-info input#myCheckbox {
-      position: relative;
-      bottom: 3px;
-    }
-    .campaigns-sidebar .campaigns-list .campaign .campaign-short-info label {
+    .campaigns-sidebar .campaigns-list .campaign .campaign-short-info label, .default-info label {
         font-size: 0.9rem;
     }
 
