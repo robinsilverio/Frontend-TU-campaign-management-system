@@ -12,17 +12,15 @@
     <main class="admin-panel">
         <div class="campaigns-sidebar">
             <div class="sidebar-menu">
+              <button class="delete-btn-primary" @click="openWarningModalUponDeletion()">Delete</button>
               <button class="create-button">Create campaign</button>
             </div>
             <div class="campaigns-list">
                 <div class="campaign" v-for="(campaignMapping, index) in campaignMappings" :key="index">
                   <div class="campaign-short-info">
-                    <input type="checkbox" id="myCheckbox" v-model="campaignMapping.campaign.checked" @change="handleCampaignSelection(campaignMapping.campaign)">
+                    <input type="checkbox" id="myCheckbox" v-model="campaignMapping.checked" @change="handleCampaignSelection(campaignMapping)">
                     <label>{{ campaignMapping.campaign.title }}</label>
                   </div>
-                  <button class="delete-btn" @click="openWarningModalUponDeletion(campaignMapping.campaign)">
-                    &times;
-                  </button>
                 </div>
             </div>
         </div>
@@ -40,21 +38,27 @@
             }
         },
         methods: {
-            handleCampaignSelection(paramCampaign) {
-                if (paramCampaign.checked) {
-                    this.selectedCampaigns.push(paramCampaign);
-                } else {
-                    const indexOfCampaign = this.selectedCampaigns.indexOf(paramCampaign);
-                    this.selectedCampaigns.splice(indexOfCampaign, 1);
-                }
+            handleCampaignSelection(paramCampaignMapping) {
+              if (paramCampaignMapping.checked) {
+                  this.selectedCampaigns.push(paramCampaignMapping.campaign);
+              } else {
+                  const indexOfCampaign = this.selectedCampaigns.indexOf(paramCampaignMapping.campaign);
+                  this.selectedCampaigns.splice(indexOfCampaign, 1);
+              }
             },
-            openWarningModalUponDeletion(paramCampaign) {
-              this.userAction = 'delete';
-              this.selectedCampaigns.push(paramCampaign);
+            openWarningModalUponDeletion() {
+              if (this.selectedCampaigns.length > 0) {
+                this.userAction = 'delete';
+              } else {
+                this.$toast.warning('Selecteer een campagne om te verwijderen.');
+              }
             },
             onModalClosed() {
               this.userAction = '';
               this.selectedCampaigns = [];
+              this.campaignMappings.forEach((campaignMapping) => {
+                if (campaignMapping.checked) campaignMapping.checked = false;
+              });
             },
         },
         mounted() {
@@ -95,6 +99,10 @@
         border: 0px solid;
         padding: 10px;
         color: #FFF;
+        cursor: pointer;
+    }
+    .campaigns-sidebar .sidebar-menu .delete-btn-primary {
+      background-color: red;
     }
     .campaigns-sidebar .sidebar-menu .create-button {
         background-color: green;
@@ -124,14 +132,14 @@
         font-size: 0.9rem;
     }
 
-    .campaigns-sidebar .campaigns-list .campaign .delete-btn {
+    .campaigns-sidebar .campaigns-list .campaign .delete-btn-secondary {
       background-color: transparent;
       border: none;
       font-size: 24px;
       cursor: pointer;
     }
 
-    .campaigns-sidebar .campaigns-list .campaign .delete-btn:hover {
+    .campaigns-sidebar .campaigns-list .campaign .delete-btn-secondary:hover {
       color: red;
     }
 
