@@ -24,7 +24,7 @@
               </div>
               <div class="campaign" v-for="(campaignMapping, index) in campaignMappings" :key="index">
                 <div class="campaign-short-info">
-                  <input type="checkbox" :id="'myCheckbox-'+ index" v-model="campaignMapping.checked" @change="handleCampaignSelection(campaignMapping)">
+                  <input type="checkbox" :id="'myCheckbox-'+ index" v-model="campaignMapping.checked">
                   <label>{{ campaignMapping.campaign.title }}</label>
                 </div>
               </div>
@@ -39,31 +39,22 @@
         data() {
             return {
                 campaignMappings: [],
-                selectedCampaigns: [],
                 selectAll: false,
                 userAction: ''
+            }
+        },
+        computed : {
+            selectedCampaigns() {
+              return this.campaignMappings
+                  .filter(campaignMapping => campaignMapping.checked)
+                  .map(campaignMapping => campaignMapping.campaign);
             }
         },
         methods: {
             handleSelectAllCampaigns() {
               this.campaignMappings.forEach(campaignMapping => {
                 campaignMapping.checked = this.selectAll;
-                let campaign = campaignMapping.campaign;
-                if (this.selectAll) {
-                  this.selectedCampaigns.push(campaign);
-                } else {
-                  let indexOfCampaignInList = this.selectedCampaigns.indexOf(campaign);
-                  this.selectedCampaigns.splice(indexOfCampaignInList, 1);
-                }
               });
-            },
-            handleCampaignSelection(paramCampaignMapping) {
-              if (paramCampaignMapping.checked) {
-                  this.selectedCampaigns.push(paramCampaignMapping.campaign);
-              } else {
-                  const indexOfCampaign = this.selectedCampaigns.indexOf(paramCampaignMapping.campaign);
-                  this.selectedCampaigns.splice(indexOfCampaign, 1);
-              }
             },
             openWarningModalUponDeletion() {
               if (this.selectedCampaigns.length > 0) {
@@ -74,7 +65,7 @@
             },
             onModalClosed() {
               this.userAction = '';
-              this.selectedCampaigns = [];
+              this.selectAll = false;
               this.campaignMappings.forEach((campaignMapping) => {
                 if (campaignMapping.checked) campaignMapping.checked = false;
               });
