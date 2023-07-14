@@ -9,7 +9,7 @@
     <div class="campaign" v-for="(campaignMapping, index) in campaignMappings" :key="index">
       <div class="campaign-short-info">
         <input type="checkbox" :id="'myCheckbox-'+ index" v-model="campaignMapping.checked">
-        <label>{{ campaignMapping.campaign.title }}</label>
+        <label @click="onSelectCampaign(campaignMapping.campaign)">{{ campaignMapping.campaign.title }}</label>
       </div>
     </div>
   </div>
@@ -44,6 +44,9 @@
       handleSelectAllCampaigns() {
         this.$emit('onSelectAllCheckBoxes', this.selectAll);
       },
+      onSelectCampaign(campaign) {
+        this.$store.commit('updateSelectedCampaign', campaign);
+      }
     }
   }
 </script>
@@ -66,6 +69,9 @@
 
   .campaigns-list .campaign .campaign-short-info label, .default-info label {
     font-size: 0.9rem;
+  }
+  .campaigns-list .campaign .campaign-short-info label {
+    cursor: pointer;
   }
 
   .campaigns-list .campaign .delete-btn-secondary {

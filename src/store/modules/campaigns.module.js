@@ -5,11 +5,15 @@ import {CampaignMapping} from "@/models/mapping/CampaignMapping";
 const campaignService = new CampaignService();
 export const campaigns = {
     state: {
-        campaigns: []
+        campaigns: [],
+        selectedCampaign: null
     },
     getters: {
         getCampaigns(state) {
             return state.campaigns;
+        },
+        getSelectedCampaign(state) {
+            return state.selectedCampaign;
         }
     },
     actions: {
@@ -35,6 +39,9 @@ export const campaigns = {
         }
     },
     mutations: {
+        updateSelectedCampaign(state, campaign){
+            state.selectedCampaign = campaign;
+        },
         setCampaigns(state, paramCampaigns) {
 
             let campaignMappings = [];

@@ -17,6 +17,15 @@
             userAction: 'none'
           }
         },
+        computed: {
+          selectedCampaign() {
+            return this.$store.getters.getSelectedCampaign;
+          }
+        },
+        watch: {
+          selectedCampaign(campaign) {
+          }
+        },
         methods: {
           changeUserAction(action) {
             this.userAction = action;
