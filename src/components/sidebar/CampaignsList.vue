@@ -22,6 +22,7 @@
         selectAll: false
       }
     },
+    emits: ['onSelectAllCheckBoxes'],
     props: {
       campaignMappings: {
         type: Array,
