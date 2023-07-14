@@ -28,33 +28,6 @@
     .admin-panel {
         display: flex;
     }
-    .campaigns-sidebar {
-        width: 25%;
-        background-color: #FFF;
-        border-right: 1px solid #a6a3aa;
-        border-left: 1px solid #A6A3AA;
-        border-bottom: 1px solid #A6A3AA;
-    }
-    .campaigns-sidebar .sidebar-menu, .campaigns-list {
-      padding: 10px;
-    }
-    .campaigns-sidebar .sidebar-menu {
-      display: flex;
-      justify-content: flex-end;
-      gap: 5px;
-    }
-    .campaigns-sidebar .sidebar-menu button {
-        border: 0px solid;
-        padding: 10px;
-        color: #FFF;
-        cursor: pointer;
-    }
-    .campaigns-sidebar .sidebar-menu .delete-btn-primary {
-      background-color: red;
-    }
-    .campaigns-sidebar .sidebar-menu .create-button {
-        background-color: green;
-    }
 
     @media (min-width: 320px) {
       main.admin-panel {
