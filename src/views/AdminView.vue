@@ -1,6 +1,7 @@
 <script setup>
     import NavigationBar from '../components/NavigationBar.vue';
     import WarningModal from "@/components/WarningModal.vue";
+    import CampaignsList from "@/components/sidebar/CampaignsList.vue";
 </script>
 <template>
     <NavigationBar></NavigationBar>
@@ -15,20 +16,10 @@
               <button class="delete-btn-primary" @click="openWarningModalUponDeletion()">Delete</button>
               <button class="create-button">Create campaign</button>
             </div>
-            <div class="campaigns-list">
-              <div class="select-all-item">
-                <div class="default-info">
-                  <input type="checkbox" id="myCheckbox" v-model="selectAll" @change="handleSelectAllCampaigns()">
-                  <label>Selecteer alles</label>
-                </div>
-              </div>
-              <div class="campaign" v-for="(campaignMapping, index) in campaignMappings" :key="index">
-                <div class="campaign-short-info">
-                  <input type="checkbox" :id="'myCheckbox-'+ index" v-model="campaignMapping.checked">
-                  <label>{{ campaignMapping.campaign.title }}</label>
-                </div>
-              </div>
-            </div>
+            <campaigns-list
+                :campaignMappings="this.campaignMappings"
+                @onSelectAllCheckBoxes="onSelectAllCheckBoxes"
+                :resetSelectAll="resetSelectAll"></campaigns-list>
         </div>
         <div class="display-component"></div>
     </main>
@@ -39,8 +30,8 @@
         data() {
             return {
                 campaignMappings: [],
-                selectAll: false,
-                userAction: ''
+                resetSelectAll: false,
+                userAction: '',
             }
         },
         computed : {
@@ -51,11 +42,6 @@
             }
         },
         methods: {
-            handleSelectAllCampaigns() {
-              this.campaignMappings.forEach(campaignMapping => {
-                campaignMapping.checked = this.selectAll;
-              });
-            },
             openWarningModalUponDeletion() {
               if (this.selectedCampaigns.length > 0) {
                 this.userAction = 'delete';
@@ -65,11 +51,19 @@
             },
             onModalClosed() {
               this.userAction = '';
-              this.selectAll = false;
               this.campaignMappings.forEach((campaignMapping) => {
                 if (campaignMapping.checked) campaignMapping.checked = false;
               });
+              this.resetSelectAll = true;
+              this.$nextTick(() => {
+                this.resetSelectAll = false; // Revert this to false after resetting.
+              });
             },
+            onSelectAllCheckBoxes(state) {
+              this.campaignMappings.forEach(campaignMapping => {
+                campaignMapping.checked = state;
+              });
+            }
         },
         mounted() {
           this.$store.dispatch('retrieveCampaigns')
@@ -116,36 +110,6 @@
     .campaigns-sidebar .sidebar-menu .create-button {
         background-color: green;
     }
-    .campaigns-sidebar .campaigns-list {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        border-top: 1px solid #A6A3AA;
-    }
-    .campaigns-sidebar .campaigns-list .campaign, .select-all-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 5px 0px;
-    }
-    .campaigns-sidebar .campaigns-list .campaign .campaign-short-info, .default-info {
-        display: flex;
-        gap: 20px;
-    }
-
-    .campaigns-sidebar .campaigns-list .campaign .campaign-short-info label, .default-info label {
-        font-size: 0.9rem;
-    }
-
-    .campaigns-sidebar .campaigns-list .campaign .delete-btn-secondary {
-      background-color: transparent;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-    }
-
-    .campaigns-sidebar .campaigns-list .campaign .delete-btn-secondary:hover {
-      color: red;
-    }
 
     @media (min-width: 320px) {
       main.admin-panel {
@@ -159,10 +123,6 @@
         height: 100vh;
         width: 100vw;
       }
-      main.admin-panel .campaigns-sidebar .campaigns-list {
-        overflow: auto;
-        height: 87%;
-      }
     }
 
     @media (min-width: 768px) {
@@ -172,9 +132,6 @@
       main.admin-panel .campaigns-sidebar {
         width: 50%;
         height: 100vh;
-      }
-      main.admin-panel .campaigns-sidebar .campaigns-list {
-        height: 94%;
       }
     }
 
