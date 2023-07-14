@@ -24,7 +24,7 @@
               </div>
               <div class="campaign" v-for="(campaignMapping, index) in campaignMappings" :key="index">
                 <div class="campaign-short-info">
-                  <input type="checkbox" id="myCheckbox" v-model="campaignMapping.checked" @change="handleCampaignSelection(campaignMapping)">
+                  <input type="checkbox" :id="'myCheckbox-'+ index" v-model="campaignMapping.checked" @change="handleCampaignSelection(campaignMapping)">
                   <label>{{ campaignMapping.campaign.title }}</label>
                 </div>
               </div>
@@ -46,11 +46,16 @@
         },
         methods: {
             handleSelectAllCampaigns() {
-              if (this.selectAll) {
-                this.toggleAllCampaignsSelection(this.selectAll)
-              } else {
-                this.toggleAllCampaignsSelection(this.selectAll);
-              }
+              this.campaignMappings.forEach(campaignMapping => {
+                campaignMapping.checked = this.selectAll;
+                let campaign = campaignMapping.campaign;
+                if (this.selectAll) {
+                  this.selectedCampaigns.push(campaign);
+                } else {
+                  let indexOfCampaignInList = this.selectedCampaigns.indexOf(campaign);
+                  this.selectedCampaigns.splice(indexOfCampaignInList, 1);
+                }
+              });
             },
             handleCampaignSelection(paramCampaignMapping) {
               if (paramCampaignMapping.checked) {
@@ -74,11 +79,6 @@
                 if (campaignMapping.checked) campaignMapping.checked = false;
               });
             },
-            toggleAllCampaignsSelection(paramSelectAllStatus) {
-              this.campaignMappings.forEach(campaignMapping => {
-                campaignMapping.checked = paramSelectAllStatus;
-              });
-            }
         },
         mounted() {
           this.$store.dispatch('retrieveCampaigns')
@@ -87,6 +87,7 @@
                     this.campaignMappings = this.$store.getters.getCampaigns;
                   },
                   error => {
+                    this.$toast.error('Er is een fout opgetreden tijdens het laden van campagnes. Probeer het later opnieuw.');
                     console.log(error);
                   }
               );
