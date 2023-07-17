@@ -28,7 +28,22 @@ export default class CampaignService {
 
     }
 
-    deleteCampaign(paramBaseUrl) {
-
+    deleteCampaign(paramBaseUrl, paramCampaign) {
+        const API_URL = paramBaseUrl;
+        const authenticatedUser = JSON.parse(localStorage.getItem('user'));
+        const response = axios
+            .delete(API_URL + `campaign/delete/${paramCampaign.campaignId}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authenticatedUser.token}`
+                }
+            })
+            .then(response => {
+                return Promise.resolve(response);
+            })
+            .catch(error => {
+                throw error;
+            });
+        return response;
     }
 }

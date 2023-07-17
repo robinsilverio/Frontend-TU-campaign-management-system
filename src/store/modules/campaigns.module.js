@@ -5,12 +5,12 @@ import {CampaignMapping} from "@/models/mapping/CampaignMapping";
 const campaignService = new CampaignService();
 export const campaigns = {
     state: {
-        campaigns: [],
+        campaignMappings: [],
         selectedCampaign: null
     },
     getters: {
         getCampaigns(state) {
-            return state.campaigns;
+            return state.campaignMappings;
         },
         getSelectedCampaign(state) {
             return state.selectedCampaign;
@@ -35,12 +35,25 @@ export const campaigns = {
 
         },
         deleteCampaign({commit}, paramCampaign) {
-
+            const BASE_URL = store.getters.getBaseUrl;
+            return campaignService.deleteCampaign(BASE_URL, paramCampaign)
+                .then(
+                    success => {
+                        commit('refreshCampaignsAfterDeletion', paramCampaign);
+                        return Promise.resolve(success);
+                    },
+                    error => { return Promise.reject(error); }
+                );
         }
     },
     mutations: {
         updateSelectedCampaign(state, campaign){
             state.selectedCampaign = campaign;
+        },
+        refreshCampaignsAfterDeletion(state, paramCampaign) {
+            const campaignIndex = state.campaignMappings
+                .findIndex(campaignMapping => campaignMapping.campaign.campaignId === paramCampaign.campaignId);
+            state.campaignMappings.splice(campaignIndex, 1);
         },
         setCampaigns(state, paramCampaigns) {
 
@@ -50,7 +63,7 @@ export const campaigns = {
                 campaignMappings.push(new CampaignMapping(campaign));
             }
 
-            state.campaigns = campaignMappings;
+            state.campaignMappings = campaignMappings;
         }
     }
 }
