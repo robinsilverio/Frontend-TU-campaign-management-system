@@ -9,7 +9,7 @@ export const campaigns = {
         selectedCampaign: null
     },
     getters: {
-        getCampaigns(state) {
+        getCampaignMappings(state) {
             return state.campaignMappings;
         },
         getSelectedCampaign(state) {
