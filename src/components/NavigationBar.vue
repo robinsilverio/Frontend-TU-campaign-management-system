@@ -45,6 +45,10 @@ header {
     top: 10px;
 }
 
+.wrapper .logout-button {
+  cursor: pointer;
+}
+
 @media (min-width: 320px) {
   .logo { gap: 15px; }
   .logo img {
