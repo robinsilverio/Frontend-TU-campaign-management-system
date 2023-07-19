@@ -27,7 +27,36 @@ export default {
   },
   methods: {
     handleCampaignRemoval() {
-      this.$toast.success("Een item is succesvol verwijderd.")
+
+      let confirmationMessage = "";
+
+      if (this.listOfSelectedCampaigns.length > 1) {
+        // Perform deletion of multiple campaigns.
+        let selectedCampaigns = {
+          selectedCampaigns: this.listOfSelectedCampaigns
+        }
+        this.$store.dispatch('deleteSelectedCampaigns', selectedCampaigns)
+            .then(
+                success => {
+                  confirmationMessage = `${this.listOfSelectedCampaigns.length} items zijn succesvol verwijderd.`;
+                  this.$toast.success(confirmationMessage);
+                },
+                error => {
+                  let errorMessage = 'Er is een fout opgetreden tijdens het verwijderen van een campagne.';
+                  this.$toast.error(errorMessage);
+                }
+            )
+      } else {
+        // Perform a deletion of one single campaign.
+        this.$store.dispatch('deleteCampaign', this.listOfSelectedCampaigns[0])
+            .then(success => {
+              confirmationMessage = 'Een item is succesvol verwijderd.';
+              this.$toast.success(confirmationMessage);
+            }, error => {
+              let errorMessage = 'Er is een fout opgetreden tijdens het verwijderen van een campagne.';
+              this.$toast.error(errorMessage);
+            });
+      }
       this.$emit('onModalClosed');
     },
     cancelDeletion() {

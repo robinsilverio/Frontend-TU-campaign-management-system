@@ -1,6 +1,6 @@
 <template>
   <WarningModal
-      :list-of-selected-campaigns="selectedCampaigns"
+      :list-of-selected-campaigns="selectedCampaignMappings"
       v-if="this.userAction === 'delete'"
       @onModalClosed="onModalClosed"
   ></WarningModal>
@@ -36,7 +36,7 @@
       }
     },
     computed : {
-      selectedCampaigns() {
+      selectedCampaignMappings() {
         return this.campaignMappings
             .filter(campaignMapping => campaignMapping.checked)
             .map(campaignMapping => campaignMapping.campaign);
@@ -59,7 +59,7 @@
         });
       },
       openWarningModalUponDeletion() {
-        if (this.selectedCampaigns.length > 0) {
+        if (this.selectedCampaignMappings.length > 0) {
           this.$emit('changeUserAction', 'delete');
         } else {
           this.$toast.warning('Selecteer een campagne om te verwijderen.');
@@ -70,7 +70,7 @@
       this.$store.dispatch('retrieveCampaigns')
           .then(
               success => {
-                this.campaignMappings = this.$store.getters.getCampaigns;
+                this.campaignMappings = this.$store.getters.getCampaignMappings;
               },
               error => {
                 this.$toast.error('Er is een fout opgetreden tijdens het laden van campagnes. Probeer het later opnieuw.');
