@@ -50,7 +50,7 @@ export default class CampaignService {
         const API_URL = store.getters.getBaseUrl;
         const authenticatedUser = JSON.parse(localStorage.getItem('user'));
         const response = axios
-            .delete(API_URL + `campaign/delete/all`, {
+            .delete(API_URL + `campaign/delete/selected-campaigns`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authenticatedUser.token}`

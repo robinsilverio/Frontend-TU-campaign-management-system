@@ -33,7 +33,7 @@ export default {
       if (this.listOfSelectedCampaigns.length > 1) {
         // Perform deletion of multiple campaigns.
         let selectedCampaigns = {
-          campaigns: this.listOfSelectedCampaigns
+          selectedCampaigns: this.listOfSelectedCampaigns
         }
         this.$store.dispatch('deleteSelectedCampaigns', selectedCampaigns)
             .then(

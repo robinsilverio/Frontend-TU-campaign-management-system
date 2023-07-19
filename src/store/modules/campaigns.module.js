@@ -47,7 +47,7 @@ export const campaigns = {
             return campaignService.deleteSelectedCampaigns(paramCampaignsRequest)
                 .then(
                     success => {
-                        commit('refreshCampaignsAfterDeletion', paramCampaignsRequest.campaigns);
+                        commit('refreshCampaignsAfterDeletion', paramCampaignsRequest.selectedCampaigns);
                         return Promise.resolve(success);
                     },
                     error => {
