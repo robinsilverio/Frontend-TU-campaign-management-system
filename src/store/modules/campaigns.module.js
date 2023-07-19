@@ -18,8 +18,7 @@ export const campaigns = {
     },
     actions: {
         retrieveCampaigns({commit}) {
-            const BASE_URL = store.getters.getBaseUrl;
-            return campaignService.retrieveCampaigns(BASE_URL)
+            return campaignService.retrieveCampaigns()
                 .then(
                     success => {
                         commit('setCampaigns', success.data.campaigns);
@@ -35,25 +34,38 @@ export const campaigns = {
 
         },
         deleteCampaign({commit}, paramCampaign) {
-            const BASE_URL = store.getters.getBaseUrl;
-            return campaignService.deleteCampaign(BASE_URL, paramCampaign)
+            return campaignService.deleteCampaign(paramCampaign)
                 .then(
                     success => {
-                        commit('refreshCampaignsAfterDeletion', paramCampaign);
+                        commit('refreshCampaignsAfterDeletion', [paramCampaign]);
                         return Promise.resolve(success);
                     },
                     error => { return Promise.reject(error); }
                 );
+        },
+        deleteSelectedCampaigns({commit}, paramCampaignsRequest) {
+            return campaignService.deleteSelectedCampaigns(paramCampaignsRequest)
+                .then(
+                    success => {
+                        commit('refreshCampaignsAfterDeletion', paramCampaignsRequest.campaigns);
+                        return Promise.resolve(success);
+                    },
+                    error => {
+                        return Promise.reject(error);
+                    }
+                )
         }
     },
     mutations: {
         updateSelectedCampaign(state, campaign){
             state.selectedCampaign = campaign;
         },
-        refreshCampaignsAfterDeletion(state, paramCampaign) {
-            const campaignIndex = state.campaignMappings
-                .findIndex(campaignMapping => campaignMapping.campaign.campaignId === paramCampaign.campaignId);
-            state.campaignMappings.splice(campaignIndex, 1);
+        refreshCampaignsAfterDeletion(state, paramCampaignsToBeDeleted) {
+            for(let campaign of paramCampaignsToBeDeleted) {
+                const campaignIndex = state.campaignMappings
+                    .findIndex(campaignMapping => campaignMapping.campaign.campaignId === campaign.campaignId);
+                state.campaignMappings.splice(campaignIndex, 1);
+            }
         },
         setCampaigns(state, paramCampaigns) {
 
