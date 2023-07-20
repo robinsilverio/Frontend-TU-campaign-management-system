@@ -20,11 +20,27 @@ export default class CampaignService {
         return response;
     }
 
-    createCampaign(paramCampaign, paramBaseUrl) {
+    createCampaign(paramCampaign) {
+        const API_URL = store.getters.getBaseUrl;
+        const authenticatedUser = JSON.parse(localStorage.getItem('user'));
 
+        const response = axios
+            .post(`${API_URL}/campaign`, paramCampaign, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authenticatedUser.token}`
+                }
+            })
+            .then(response => {
+                return Promise.resolve(response);
+            })
+            .catch(error => {
+                throw error;
+            });
+        return response;
     }
 
-    updateCampaign(paramCampaign, paramBaseUrl) {
+    updateCampaign(paramCampaign) {
 
     }
 

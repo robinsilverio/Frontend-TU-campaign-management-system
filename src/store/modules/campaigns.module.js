@@ -27,8 +27,15 @@ export const campaigns = {
                     error => { return Promise.reject(error); }
                 );
         },
-        createCampaign({commit}) {
-
+        createCampaign({commit}, paramCampaign) {
+            return campaignService.createCampaign(paramCampaign)
+                .then(
+                    success => {
+                        commit('addCampaign', success.data.campaign);
+                        return Promise.resolve(success);
+                    },
+                    error => { return Promise.reject(error); }
+                )
         },
         updateCampaign({commit}, paramCampaign) {
 
@@ -57,6 +64,9 @@ export const campaigns = {
         }
     },
     mutations: {
+        addCampaign(state, paramCampaign) {
+            state.campaignMappings.push(new CampaignMapping(paramCampaign))
+        },
         updateSelectedCampaign(state, campaign){
             state.selectedCampaign = campaign;
         },
