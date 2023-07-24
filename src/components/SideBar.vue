@@ -7,7 +7,7 @@
   <div class="campaigns-sidebar">
     <div class="sidebar-menu">
       <button class="delete-btn-primary" @click="openWarningModalUponDeletion()">Delete</button>
-      <button class="create-button">Create campaign</button>
+      <button class="create-button" @click="openCreateForm()">Create campaign</button>
     </div>
     <campaigns-list
         :campaignMappings="this.campaignMappings"
@@ -64,6 +64,9 @@
         } else {
           this.$toast.warning('Selecteer een campagne om te verwijderen.');
         }
+      },
+      openCreateForm() {
+        this.$emit('changeUserAction', 'create');
       }
     },
     mounted() {
