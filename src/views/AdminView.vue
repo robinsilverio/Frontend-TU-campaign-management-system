@@ -1,12 +1,15 @@
 <script setup>
     import NavigationBar from '../components/NavigationBar.vue';
     import SideBar from "@/components/SideBar.vue";
+    import FormPage from "@/components/FormPage.vue";
 </script>
 <template>
     <NavigationBar></NavigationBar>
     <main class="admin-panel">
         <SideBar :user-action="this.userAction" @changeUserAction="changeUserAction"></SideBar>
-        <div class="display-component"></div>
+        <div class="display-component">
+          <FormPage :user-action="userAction" :selected-campaign="this.selectedCampaign"></FormPage>
+        </div>
     </main>
 </template>
 <script>
