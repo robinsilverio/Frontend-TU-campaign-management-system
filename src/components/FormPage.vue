@@ -1,17 +1,17 @@
 <template>
   <div class="form-page">
     <div class="tab-header">
-      <div :class="{'tab': true, 'active': activeTab === key}" v-for="(value, key, index) in tabForms" :key="index" @click="changeTab(key)">
+      <div :class="{'tab': true, 'active': activeTab.mainTab === key}" v-for="(value, key, index) in tabForms" :key="index" @click="changeTab(key)">
         {{ key }}
       </div>
     </div>
     <div class="form-body">
       <h1>{{ this.capitalizedActiveTab }}</h1>
       <form class="campaign-form" name="campaign-form" @submit.prevent="formSubmit">
-        <AdditionalItemsComponent v-if="activeTab === 'Campaign items' || activeTab === 'Tags'" :tab-form="this.tabForms[activeTab]" :active-tab="this.activeTab">
+        <AdditionalItemsComponent v-if="activeTab.mainTab === 'Campaign items' || activeTab.mainTab === 'Tags'" :tab-form="this.tabForms[activeTab.mainTab]" :active-tab="this.activeTab.mainTab">
         </AdditionalItemsComponent>
-        <div class="form-controls">
-          <div :class="'form-control input-' + tabForm.name" v-for="(tabForm, index) in this.tabForms[activeTab].inputFields" :key="index">
+        <div class="form-controls no-subtabs" v-if="this.tabForms[activeTab.mainTab].subTabs === null">
+          <div :class="'form-control input-' + tabForm.name" v-for="(tabForm, index) in this.tabForms[activeTab.mainTab].inputFields" :key="index">
             <label for="{{tabForm.name}}">{{tabForm.label}}</label>
             <input :type="tabForm.type" :name="tabForm.name" v-model="tabForm.value" v-if="tabForm.type !== 'textarea' && tabForm.type !== 'selectbox' && tabForm.type !== 'radiogroup' && tabForm.type !== 'formgroup'" />
             <div class="radio-wrapper" v-if="tabForm.type === 'radiogroup'">
@@ -26,7 +26,23 @@
             <textarea name="{{tabForm.name}}" v-if="tabForm.type === 'textarea'" v-model="tabForm.value"></textarea>
           </div>
         </div>
-        <div class="additional-form-actions" v-if="activeTab === 'Campaign items'">
+        <div class="form-controls subtabs" v-else>
+          <div :class="'form-control input-' + tabForm.name" v-for="(tabForm, index) in this.tabForms[activeTab.mainTab].subTabs[activeTab.subTab].inputFields" :key="index">
+            <label for="{{tabForm.name}}">{{tabForm.label}}</label>
+            <input :type="tabForm.type" :name="tabForm.name" v-model="tabForm.value" v-if="tabForm.type !== 'textarea' && tabForm.type !== 'selectbox' && tabForm.type !== 'radiogroup' && tabForm.type !== 'formgroup'" />
+            <div class="radio-wrapper" v-if="tabForm.type === 'radiogroup'">
+              <div v-for="(radioOption, subIndex) in tabForm.radioOptions" :key="subIndex">
+                <input type="radio" :id="`${tabForm.name}-${subIndex}`" :value="radioOption.value" v-model="tabForm.value" />
+                <label :for="`${tabForm.name}-${subIndex}`">{{ radioOption.label }}</label>
+              </div>
+            </div>
+            <select :name="tabForm.name" v-model="tabForm.value" v-if="tabForm.type !== 'radiogroup' && tabForm.type === 'selectbox'">
+              <option v-for="(option, subIndex) in tabForm.options" :key="subIndex" :value="option">{{ option }}</option>
+            </select>
+            <textarea name="{{tabForm.name}}" v-if="tabForm.type === 'textarea'" v-model="tabForm.value"></textarea>
+          </div>
+        </div>
+        <div class="additional-form-actions" v-if="activeTab.mainTab === 'Campaign items'">
           <div @click="addCampaignItem()">Voeg campaign item toe</div>
         </div>
         <div class="form-actions">
@@ -44,9 +60,13 @@ export default {
   components: {AdditionalItemsComponent},
   data() {
     return {
-      activeTab: 'Basic',
+      activeTab: {
+        mainTab: 'Basics',
+        subTab: 'Basics'
+      },
       tabForms: {
-        "Basic" : {
+        "Basics" : {
+            subTabs: null,
             inputFields: [
               { type: 'text', name: 'title', label: 'Title: ', required: true, value: null },
               { type: 'text', name: 'campaign-url', label: 'Campaign url: ', required: false, value: null },
@@ -59,6 +79,7 @@ export default {
             ]
         },
         "Advanced" : {
+          subTabs: null,
           inputFields: [
             {
               type: 'selectbox',
@@ -98,6 +119,7 @@ export default {
           ],
         },
         "Images" : {
+          subTabs: null,
           inputFields: [
             { type: 'text', name: 'campaign-filter-image', label: 'Campaign Filter Image Url: ', required: true, value: null },
             { type: 'text', name: 'campaign-filter-overlay-text', label: 'Campaign Filter Overlay Text: ', required: false, value: null },
@@ -107,31 +129,43 @@ export default {
           ]
         },
         "Campaign items" : {
-          values: [],
-          inputFields : [
-            { type: 'text', name: 'campaign-item-title', label: 'Title: ', required: true, value: null },
-            { type: 'textarea', name: 'promo-text', label: 'Promotion Text: ', required: true, value: null },
-            {
-              type: 'selectbox',
-              name: 'priority',
-              label: 'Priority: ',
-              options: [
-                "XS",
-                "S",
-                "M",
-                "L",
-                "XL",
-                "XL",
-                "XXL"
-              ],
-              required: true,
-              value: null
+          subTabs: {
+            "Basics" : {
+              inputFields: [
+                { type: 'text', name: 'campaign-item-title', label: 'Title: ', required: true, value: null },
+                { type: 'textarea', name: 'campaign-item-promo-text', label: 'Promotion Text: ', required: true, value: null },
+                {
+                  type: 'selectbox',
+                  name: 'priority',
+                  label: 'Priority: ',
+                  options: [
+                    "XS",
+                    "S",
+                    "M",
+                    "L",
+                    "XL",
+                    "XL",
+                    "XXL"
+                  ],
+                  required: true,
+                  value: 'M'
+                },
+                { type: 'text', name: 'teaser', label: 'Teaser: ', required: false, value: null },
+                { type: 'text', name: 'tekst', label: 'Tekst: ', required: false, value: null }
+              ]
             },
-            { type: 'text', name: 'teaser', label: 'Teaser: ', required: false, value: null },
-            { type: 'text', name: 'tekst', label: 'Tekst: ', required: false, value: null }
-          ]
+            "Images" : {
+              inputFields: [
+                { type: 'text', name: 'campaign-item-promo-img', label: 'Promotion Image Url: ', required: true, value: null },
+                { type: 'text', name: 'campaign-item-promo-img-alt-text', label: 'Promotion Image Alt Text: ', required: true, value: null },
+              ]
+            },
+            "Discounts": {}
+          },
+          values: []
         },
         "Tags" : {
+          subTabs: null,
           values: [],
           inputFields: []
         }
@@ -141,7 +175,7 @@ export default {
   },
   computed: {
     capitalizedActiveTab() {
-      return this.activeTab.charAt(0).toUpperCase() + this.activeTab.slice(1);
+      return this.activeTab.mainTab.charAt(0).toUpperCase() + this.activeTab.mainTab.slice(1);
     },
     capitalizedUserAction() {
       return this.userAction.charAt(0).toUpperCase() + this.userAction.slice(1);
@@ -157,7 +191,10 @@ export default {
   },
   methods: {
     changeTab(paramTabName) {
-      this.activeTab = paramTabName;
+      this.activeTab.mainTab = paramTabName;
+    },
+    changeSubTab(paramTabName) {
+      this.activeTab.subTab = paramTabName;
     },
     formSubmit() {
       this.validateInput();
@@ -179,7 +216,17 @@ export default {
       }
     },
     addCampaignItem() {
-      console.log("Hello World");
+      let campaignItem = {
+        campaignItemId: null,
+        promoTitle: this.tabForms['Campaign items'].inputFields[0].value,
+        promoText: this.tabForms['Campaign items'].inputFields[1].value,
+        promoImgUrl: this.tabForms['Campaign items'].inputFields[2].value,
+        promoImgAltText: this.tabForms['Campaign items'].inputFields[3].value,
+        weight: this.tabForms['Campaign items'].inputFields[4].value,
+        teaser: this.tabForms['Campaign items'].inputFields[5].value,
+        extraText: this.tabForms['Campaign items'].inputFields[6].value,
+      }
+      this.tabForms['Campaign items'].values.push(campaignItem)
     },
     validateInput() {
       Object.keys(this.tabForms).forEach((key) => {
@@ -222,7 +269,9 @@ export default {
   .form-page .form-body {
     background-color: #FFF;
     border: 1px solid;
-    padding: 20px;
+  }
+  .form-page .form-body h1 {
+    padding: 20px 20px 0px
   }
   .form-page .form-body form .form-controls .form-control {
     display: flex;
@@ -235,8 +284,13 @@ export default {
     display: flex;
     gap: 10px;
   }
-  .additional-form-actions, .form-actions {
-    margin-top: 30px;
+  form.campaign-form .form-controls
+  {
+    padding: 20px;
+  }
+  form.campaign-form .additional-form-actions,
+  form.campaign-form .form-actions {
+    padding: 0px 20px 10px 20px;
   }
   .form-actions {
     display: flex;
@@ -257,10 +311,6 @@ export default {
     background-color: var(--TU-color);
   }
   .campaign-form .form-controls {
-    margin-top: 20px;
-  }
-  .campaign-form .list-of-additional-items ul {
-    padding: 0;
-    list-style: none;
+    border-top: 1px solid #000000;
   }
 </style>

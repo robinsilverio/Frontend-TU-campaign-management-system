@@ -10,6 +10,7 @@ module.exports = {
   ],
   rules: {
     "no-unused-vars": "off",
+    'vue/no-use-v-if-with-v-for': 'off'
   },
   overrides: [
     {
