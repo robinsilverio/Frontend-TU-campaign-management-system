@@ -26,8 +26,9 @@
             <textarea name="{{tabForm.name}}" v-if="tabForm.type === 'textarea'" v-model="tabForm.value"></textarea>
           </div>
         </div>
-        <div class="additional-form-actions" v-if="activeTab.mainTab === 'Campaign items'">
-          <div @click="addCampaignItem()">Voeg campaign item toe</div>
+        <div class="additional-form-actions" v-if="this.shouldShowAdditionalActions">
+          <div @click="handleAdditionalFormAction()" v-if="this.activeTab.mainTab === 'Campaign items'">Voeg campaign item toe</div>
+          <div @click="handleAdditionalFormAction()" v-if="this.activeTab.mainTab === 'Tags'">Voeg tag toe</div>
         </div>
         <div class="form-actions">
           <button class="form-submit-btn">{{ this.capitalizedUserAction }} campaign</button>
@@ -141,7 +142,7 @@ export default {
             "Images" : {
               inputFields: [
                 { type: 'text', name: 'campaign-item-promo-img', label: 'Promotion Image Url: ', required: true, value: null },
-                { type: 'text', name: 'campaign-item-promo-img-alt-text', label: 'Promotion Image Alt Text: ', required: true, value: null },
+                { type: 'text', name: 'campaign-item-promo-img-alt-text', label: 'Promotion Image Alt Text: ', required: false, value: null },
               ]
             },
             "Discounts": {}
@@ -152,7 +153,9 @@ export default {
         "Tags" : {
           subTabs: null,
           values: [],
-          inputFields: []
+          inputFields: [
+            { type: 'text', name: 'campaign-item-tag', label: 'Tag: ', required: false, value: null }
+          ]
         }
       },
       errorMessages: []
@@ -173,6 +176,10 @@ export default {
         inputFields = this.tabForms[this.activeTab.mainTab].subTabs[this.activeTab.subTab].inputFields;
       }
       return inputFields;
+    },
+    shouldShowAdditionalActions() {
+      const allowedTabs = ['Campaign items', 'Tags'];
+      return allowedTabs.includes(this.activeTab.mainTab);
     }
   },
   props: {
@@ -195,6 +202,30 @@ export default {
     changeSubTab(paramTabName) {
       this.activeTab.subTab = paramTabName;
     },
+    addCampaignItem() {
+      let campaignItem = {
+        campaignItemId: null,
+        promoTitle: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[0].value,
+        promoText: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[1].value,
+        promoImgUrl: this.tabForms['Campaign items'].subTabs['Images'].inputFields[0].value,
+        promoImgAltText: this.tabForms['Campaign items'].subTabs['Images'].inputFields[1].value,
+        weight: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[2].value,
+        teaser: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[3].value,
+        extraText: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[4].value,
+      }
+      this.tabForms['Campaign items'].values.push(campaignItem)
+    },
+    addTag() {
+      let tagObject = { title: this.tabForms['Tags'].inputFields[0].value };
+      this.tabForms['Tags'].values.push(tagObject);
+    },
+    handleAdditionalFormAction() {
+      if (this.activeTab.mainTab === 'Campaign items') {
+        this.addCampaignItem();
+      } else {
+        this.addTag();
+      }
+    },
     formSubmit() {
       this.validateInput();
       if (this.errorMessages.length > 0) {
@@ -213,19 +244,6 @@ export default {
           this.$toast.success("Een campagne is succesvol bijgewerkt.");
         }
       }
-    },
-    addCampaignItem() {
-      let campaignItem = {
-        campaignItemId: null,
-        promoTitle: this.tabForms['Campaign items'].inputFields[0].value,
-        promoText: this.tabForms['Campaign items'].inputFields[1].value,
-        promoImgUrl: this.tabForms['Campaign items'].inputFields[2].value,
-        promoImgAltText: this.tabForms['Campaign items'].inputFields[3].value,
-        weight: this.tabForms['Campaign items'].inputFields[4].value,
-        teaser: this.tabForms['Campaign items'].inputFields[5].value,
-        extraText: this.tabForms['Campaign items'].inputFields[6].value,
-      }
-      this.tabForms['Campaign items'].values.push(campaignItem)
     },
     validateInput() {
       Object.keys(this.tabForms).forEach((key) => {
