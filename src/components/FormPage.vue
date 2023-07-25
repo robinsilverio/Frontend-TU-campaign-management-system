@@ -10,24 +10,8 @@
       <form class="campaign-form" name="campaign-form" @submit.prevent="formSubmit">
         <AdditionalItemsComponent v-if="activeTab.mainTab === 'Campaign items' || activeTab.mainTab === 'Tags'" :tab-form="this.tabForms[activeTab.mainTab]" :active-tab="this.activeTab.mainTab">
         </AdditionalItemsComponent>
-        <div class="form-controls no-subtabs" v-if="this.tabForms[activeTab.mainTab].subTabs === null">
-          <div :class="'form-control input-' + tabForm.name" v-for="(tabForm, index) in this.tabForms[activeTab.mainTab].inputFields" :key="index">
-            <label for="{{tabForm.name}}">{{tabForm.label}}</label>
-            <input :type="tabForm.type" :name="tabForm.name" v-model="tabForm.value" v-if="tabForm.type !== 'textarea' && tabForm.type !== 'selectbox' && tabForm.type !== 'radiogroup' && tabForm.type !== 'formgroup'" />
-            <div class="radio-wrapper" v-if="tabForm.type === 'radiogroup'">
-              <div v-for="(radioOption, subIndex) in tabForm.radioOptions" :key="subIndex">
-                <input type="radio" :id="`${tabForm.name}-${subIndex}`" :value="radioOption.value" v-model="tabForm.value" />
-                <label :for="`${tabForm.name}-${subIndex}`">{{ radioOption.label }}</label>
-              </div>
-            </div>
-            <select :name="tabForm.name" v-model="tabForm.value" v-if="tabForm.type !== 'radiogroup' && tabForm.type === 'selectbox'">
-              <option v-for="(option, subIndex) in tabForm.options" :key="subIndex" :value="option">{{ option }}</option>
-            </select>
-            <textarea name="{{tabForm.name}}" v-if="tabForm.type === 'textarea'" v-model="tabForm.value"></textarea>
-          </div>
-        </div>
-        <div class="form-controls subtabs" v-else>
-          <div :class="'form-control input-' + tabForm.name" v-for="(tabForm, index) in this.tabForms[activeTab.mainTab].subTabs[activeTab.subTab].inputFields" :key="index">
+        <div class="form-controls">
+          <div :class="'form-control input-' + tabForm.name" v-for="(tabForm, index) in this.getInputfields" :key="index">
             <label for="{{tabForm.name}}">{{tabForm.label}}</label>
             <input :type="tabForm.type" :name="tabForm.name" v-model="tabForm.value" v-if="tabForm.type !== 'textarea' && tabForm.type !== 'selectbox' && tabForm.type !== 'radiogroup' && tabForm.type !== 'formgroup'" />
             <div class="radio-wrapper" v-if="tabForm.type === 'radiogroup'">
@@ -62,7 +46,7 @@ export default {
     return {
       activeTab: {
         mainTab: 'Basics',
-        subTab: 'Basics'
+        subTab: null,
       },
       tabForms: {
         "Basics" : {
@@ -162,7 +146,8 @@ export default {
             },
             "Discounts": {}
           },
-          values: []
+          values: [],
+          inputFields: []
         },
         "Tags" : {
           subTabs: null,
@@ -179,6 +164,15 @@ export default {
     },
     capitalizedUserAction() {
       return this.userAction.charAt(0).toUpperCase() + this.userAction.slice(1);
+    },
+    getInputfields() {
+      let inputFields;
+      if (this.activeTab.main !== null && this.activeTab.subTab === null) {
+        inputFields = this.tabForms[this.activeTab.mainTab].inputFields;
+      } else {
+        inputFields = this.tabForms[this.activeTab.mainTab].subTabs[this.activeTab.subTab].inputFields;
+      }
+      return inputFields;
     }
   },
   props: {
@@ -192,6 +186,11 @@ export default {
   methods: {
     changeTab(paramTabName) {
       this.activeTab.mainTab = paramTabName;
+      if (this.activeTab.mainTab === 'Campaign items') {
+        this.activeTab.subTab = 'Basics';
+      } else {
+        this.activeTab.subTab = null;
+      }
     },
     changeSubTab(paramTabName) {
       this.activeTab.subTab = paramTabName;
