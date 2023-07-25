@@ -11,7 +11,25 @@
         <div class="form-controls">
           <div :class="'form-control input-' + tabForm.name" v-for="(tabForm, index) in this.tabForms[activeTab].inputFields" :key="index">
             <label for="{{tabForm.name}}">{{tabForm.label}}</label>
-            <input :type="tabForm.type" :name="tabForm.name" v-model="tabForm.value" v-if="tabForm.type !== 'textarea' && tabForm.type !== 'selectbox' && tabForm.type !== 'radiogroup'" />
+            <input :type="tabForm.type" :name="tabForm.name" v-model="tabForm.value" v-if="tabForm.type !== 'textarea' && tabForm.type !== 'selectbox' && tabForm.type !== 'radiogroup' && tabForm.type !== 'formgroup'" />
+            <div class="form-group" v-if="tabForm.type === 'formgroup'">
+              <div class="list-of-campaign-items">
+                <ul>
+                  <li v-if="tabForm.values.length === 0">Leeg</li>
+                  <li v-for="(campaignItem, subIndex) in tabForm.values" :key="subIndex">{{ campaignItem.title }}</li>
+                </ul>
+              </div>
+              <div class="form-controls">
+                <div :class="'form-control campaign-item-input-' + subTabForm" v-for="(subTabForm, subIndex) in tabForm.form.subInputFields" :key="subIndex">
+                  <label for="{{subTabForm.name}}">{{subTabForm.label}}</label>
+                  <input :type="subTabForm.type" :name="subTabForm.name" v-model="subTabForm.value" v-if="subTabForm.type !== 'textarea'" />
+                  <textarea v-if="subTabForm.type === 'textarea'" v-model="subTabForm.value"></textarea>
+                </div>
+              </div>
+              <div class="form-actions">
+                <div @click="addCampaignItem()">Voeg campaign item toe</div>
+              </div>
+            </div>
             <div class="radio-wrapper" v-if="tabForm.type === 'radiogroup'">
               <div v-for="(radioOption, subIndex) in tabForm.radioOptions" :key="subIndex">
                 <input type="radio" :id="`${tabForm.name}-${subIndex}`" :value="radioOption.value" v-model="tabForm.value" />
@@ -74,7 +92,8 @@ export default {
                 "MEDEWERKER",
               ],
               required: true,
-              value: null },
+              value: null
+            },
             {
               type: 'radiogroup',
               name: 'root-indicator',
@@ -98,8 +117,42 @@ export default {
           ]
         },
         "Campaign items" : {
+          inputFields : [
+            {
+              type: 'formgroup',
+              name: 'campaign-item-formgroup',
+              label: 'Campaign item(s): ',
+              required: true,
+              values: [],
+              form: {
+                subInputFields: [
+                  { type: 'text', name: 'ribbon-text', label: 'Ribbon Text: ', required: true, value: null },
+                  { type: 'textarea', name: 'promo-summary', label: 'Campaign Promotional Summary Text: ', required: true, value: null },
+                  {
+                    type: 'selectbox',
+                    name: 'priority',
+                    label: 'Priority: ',
+                    options: [
+                      "XS",
+                      "S",
+                      "M",
+                      "L",
+                      "XL",
+                      "XL",
+                      "XXL"
+                    ],
+                    required: true,
+                    value: null
+                  },
+                  { type: 'text', name: 'teaser', label: 'Teaser: ', required: false, value: null },
+                  { type: 'text', name: 'tekst', label: 'Tekst: ', required: false, value: null }
+                ]
+              }
+            }
+          ]
         },
         "Tags" : {
+          inputFields: []
         }
       },
       errorMessages: []
@@ -143,6 +196,9 @@ export default {
           this.$toast.success("Een campagne is succesvol bijgewerkt.");
         }
       }
+    },
+    addCampaignItem() {
+      console.log("Hello World");
     },
     validateInput() {
       Object.keys(this.tabForms).forEach((key) => {
@@ -200,5 +256,24 @@ export default {
   }
   .form-actions {
     margin-top: 30px;
+  }
+  .form-actions:not(.form-control.input-campaign-item-formgroup .form-actions) {
+    display: flex;
+    justify-content: flex-end;
+  }
+  /* Styling tabform Campaign items*/
+  .form-control.input-campaign-item-formgroup .form-actions div {
+    width: fit-content;
+    background-color: var(--TU-color);
+    color: #FFF;
+    padding: 5px;
+    cursor: pointer;
+  }
+  .form-control.input-campaign-item-formgroup .form-group .form-controls {
+    margin-top: 20px;
+  }
+  .form-control.input-campaign-item-formgroup .form-group .list-of-campaign-items ul {
+    padding: 0;
+    list-style: none;
   }
 </style>
