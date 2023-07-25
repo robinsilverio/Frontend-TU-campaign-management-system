@@ -1,11 +1,9 @@
 <template>
   <div class="form-page">
     <div class="tab-header">
-      <div :class="{'tab': true, 'active': activeTab === 'basic'}" @click="changeTab('basic')">Basic</div>
-      <div :class="{'tab': true, 'active': activeTab === 'advanced'}" @click="changeTab('advanced')">Advanced</div>
-      <div :class="{'tab': true, 'active': activeTab === 'image'}" @click="changeTab('image')">Image</div>
-      <div :class="{'tab': true, 'active': activeTab === 'campaign-items'}" @click="changeTab('campaign-items')">Campaign items</div>
-      <div :class="{'tab': true, 'active': activeTab === 'tags'}" @click="changeTab('tags')">Tags</div>
+      <div :class="{'tab': true, 'active': activeTab === key}" v-for="(value, key, index) in tabForms" :key="index" @click="changeTab(key)">
+        {{ key }}
+      </div>
     </div>
     <div class="form-body">
       <h1>{{ this.capitalizedActiveTab }}</h1>
@@ -38,9 +36,9 @@ export default {
   name: "FormPage",
   data() {
     return {
-      activeTab: 'basic',
+      activeTab: 'Basic',
       tabForms: {
-        "basic" : {
+        "Basic" : {
             inputFields: [
               { type: 'text', name: 'title', label: 'Title: ', required: true, value: null },
               { type: 'text', name: 'campaign-url', label: 'Campaign url: ', required: false, value: null },
@@ -52,7 +50,7 @@ export default {
               { type: 'text', name: 'campaign-terms-url: ', label: 'Campaign Terms Url: ', required: false, value: null }
             ]
         },
-        "advanced" : {
+        "Advanced" : {
           inputFields: [
             {
               type: 'selectbox',
@@ -90,11 +88,18 @@ export default {
             }
           ],
         },
-        "images" : {
+        "Images" : {
+          inputFields: [
+            { type: 'text', name: 'campaign-filter-image', label: 'Campaign Filter Image Url: ', required: true, value: null },
+            { type: 'text', name: 'campaign-filter-overlay-text', label: 'Campaign Filter Overlay Text: ', required: false, value: null },
+            { type: 'text', name: 'campaign-promotional-img-url', label: 'Campaign Promotional Image Url: ', required: true, value: null },
+            { type: 'text', name: 'campaign-promotional-img-alt', label: 'Campaign Promotional Image Alt Text: ', required: true, value: null },
+            { type: 'text', name: 'mobile-image-url', label: 'Mobile Image Url: ', required: false, value: null }
+          ]
         },
-        "campaign-items" : {
+        "Campaign items" : {
         },
-        "tags" : {
+        "Tags" : {
         }
       },
       errorMessages: []
@@ -141,8 +146,6 @@ export default {
     },
     validateInput() {
       Object.keys(this.tabForms).forEach((key) => {
-        console.log(key);
-
         this.tabForms[key].inputFields && this.tabForms[key].inputFields.forEach((field) => {
           if ((field.value === null || field.value === '') && field.required) {
             this.errorMessages.push(`Er ontbreekt een waarde voor de vereiste eigenschap "${field.label}"`);
