@@ -61,8 +61,8 @@ export default {
   data() {
     return {
       activeTab: {
-        mainTab: 'Campaign items',
-        subTab: 'Discounts',
+        mainTab: 'Basics',
+        subTab: null,
       },
       tabForms: {
         "Basics" : {
@@ -169,12 +169,14 @@ export default {
                   inputFields: [
                     { type: 'text', name: 'campaign-item-discount-sku', required: false, value: null }
                   ],
+                  required: false,
                   values: []
                 },
                 { type: 'text', name: 'campaign-item-discount-price', label: 'Discount Price', required: false, value: null },
                 { type: 'text', name: 'campaign-item-discount-percentage', label: 'Discount Percentage', required: false, value: null },
-                { type: 'text', name: 'campaign-item-discount-tu-points', label: 'TU Points', required: false, value: null },
+                { type: 'text', name: 'campaign-item-discount-tu-points', label: 'TU Points', required: true, value: null },
               ],
+              required: true,
               values: []
             }
           },
@@ -185,7 +187,7 @@ export default {
           subTabs: null,
           values: [],
           inputFields: [
-            { type: 'text', name: 'campaign-item-tag', label: 'Tag', required: false, value: null }
+            { type: 'text', name: 'campaign-item-tag', label: 'Tag', required: true, value: null }
           ]
         }
       },
@@ -237,6 +239,17 @@ export default {
       this.activeTab.subTab = paramTabName;
     },
     addCampaignItem() {
+
+      this.validateFields(this.tabForms['Campaign items'].subTabs['Basics'].inputFields);
+      this.validateFields(this.tabForms['Campaign items'].subTabs['Images'].inputFields);
+      this.validateDiscounts();
+
+      if (this.errorMessages.length > 0) {
+        this.errorMessages.forEach(errorMessage => this.$toast.error(errorMessage));
+        this.errorMessages = [];
+        return;
+      }
+
       let campaignItem = {
         campaignItemId: null,
         promoTitle: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[0].value,
@@ -246,10 +259,22 @@ export default {
         weight: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[2].value,
         teaser: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[3].value,
         extraText: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[4].value,
+        discounts: this.tabForms['Campaign items'].subTabs['Discounts'].values
       }
       this.tabForms['Campaign items'].values.push(campaignItem)
+      this.clearInputFields(this.tabForms['Campaign items'].subTabs['Basics'].inputFields);
+      this.clearInputFields(this.tabForms['Campaign items'].subTabs['Images'].inputFields);
     },
     addDiscount() {
+      this.validateFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields);
+      this.validateSkus();
+
+      if (this.errorMessages.length > 0) {
+        this.errorMessages.forEach(errorMessage => this.$toast.error(errorMessage));
+        this.errorMessages = [];
+        return;
+      }
+
       let discountsList = this.tabForms['Campaign items'].subTabs['Discounts'].values;
       let discountObject = {
         discountId: null,
@@ -269,6 +294,12 @@ export default {
       this.clearInputFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].inputFields);
     },
     addTag() {
+      this.validateTag();
+      if (this.errorMessages.length > 0) {
+        this.errorMessages.forEach(errorMessage => this.$toast.error(errorMessage));
+        this.errorMessages = [];
+        return;
+      }
       let tagObject = { title: this.tabForms['Tags'].inputFields[0].value };
       this.tabForms['Tags'].values.push(tagObject);
       this.clearInputFields(this.tabForms['Tags'].inputFields);
@@ -286,6 +317,7 @@ export default {
     },
     formSubmit() {
       this.validateInput();
+      this.validateCampaignItems();
       if (this.errorMessages.length > 0) {
         this.errorMessages.forEach(errorMessage => this.$toast.error(errorMessage));
         this.errorMessages = [];
@@ -312,19 +344,35 @@ export default {
     validateInput() {
       Object.keys(this.tabForms).forEach((tab) => {
         this.validateFields(this.tabForms[tab].inputFields);
-        if (this.tabForms[tab].subTabs !== null) {
-          Object.keys(this.tabForms[tab].subTabs).forEach(subTab => {
-            this.validateFields(this.tabForms[tab].subTabs[subTab].inputFields);
-          });
-        }
       });
     },
     validateFields(paramInputFields) {
+      let optionalInputfields = ["campaign-item-tag"];
       paramInputFields.forEach((field) => {
-        if (((field.value === null || field.value === '') && field.required) && this.tabForms['Campaign items'].values.length === 0) {
+        if (((field.value === null || field.value === '') && field.required) && !optionalInputfields.includes(field.name)) {
           this.errorMessages.push(`Er ontbreekt een waarde voor de vereiste eigenschap "${field.label}"`);
         }
       });
+    },
+    validateCampaignItems() {
+      if (this.tabForms['Campaign items'].values.length === 0) {
+        this.errorMessages.push("Het is vereist om een campaign item toe te voegen");
+      }
+    },
+    validateDiscounts() {
+      if (this.tabForms['Campaign items'].subTabs['Discounts'].values.length === 0) {
+        this.errorMessages.push("Het is vereist om een korting aan een campaign item toe te passen.");
+      }
+    },
+    validateSkus() {
+     if (this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values.length === 0) {
+       this.errorMessages.push("Het is vereist om een of meerdere sku's toe te voegen aan een discount.");
+     }
+    },
+    validateTag() {
+      if (this.tabForms['Tags'].inputFields[0].value === null) {
+        this.errorMessages.push("Naam van de tag is vereist.");
+      }
     }
   }
 }
