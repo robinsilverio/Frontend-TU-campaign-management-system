@@ -2,7 +2,7 @@
   <div class="form-page">
     <div class="tab-header">
       <div :class="{'tab': true, 'active': activeTab.mainTab === key}" v-for="(value, key, index) in tabForms" :key="index" @click="changeTab(key)">
-        {{ key }}
+        <p>{{ key }}</p>
       </div>
     </div>
     <div class="form-body">
@@ -10,7 +10,12 @@
       <form class="campaign-form" name="campaign-form" @submit.prevent="formSubmit">
         <AdditionalItemsComponent v-if="activeTab.mainTab === 'Campaign items' || activeTab.mainTab === 'Tags'" :tab-form="this.tabForms[activeTab.mainTab]" :active-tab="this.activeTab.mainTab">
         </AdditionalItemsComponent>
-        <div class="form-controls">
+        <div class="sub-tab-header" v-if="activeTab.subTab !== null">
+          <div :class="{'tab': true, 'active': activeTab.subTab === key}" v-for="(value, key, index) in this.tabForms[activeTab.mainTab].subTabs" :key="index" @click="changeSubTab(key)">
+            <p>{{ key }}</p>
+          </div>
+        </div>
+        <div :class="{'form-controls': true, 'sub-tab-form-controls': activeTab.subTab !== null}">
           <div :class="'form-control input-' + tabForm.name" v-for="(tabForm, index) in this.getInputfields" :key="index">
             <label :for="tabForm.name">{{tabForm.label}}: </label>
             <input :type="tabForm.type" :name="tabForm.name" v-model="tabForm.value" v-if="tabForm.type !== 'textarea' && tabForm.type !== 'selectbox' && tabForm.type !== 'radiogroup' && tabForm.type !== 'formgroup'" />
@@ -279,24 +284,26 @@ export default {
     position: relative;
     top: 1%;
   }
-  .form-page .tab-header {
+  .form-page .tab-header, .sub-tab-header {
     display: flex;
     justify-content: flex-start;
   }
-  .tab-header .tab {
+  .tab-header .tab, .sub-tab-header .tab {
     background-color: #000;
     padding: 10px 30px;
     color: #FFF;
     cursor: pointer;
     border: 1px solid #FFF;
+    border-bottom: none;
   }
-  .tab-header .tab.active {
+  .tab-header .tab.active, .sub-tab-header .tab.active {
     background-color: #FFF;
     border-color: #000;
     color: #000;
-    box-shadow: 0px 3px 0px 0px #007D30;
-    bottom: 3px;
-    position: relative;
+  }
+  .tab-header .tab.active p, .sub-tab-header .tab.active p {
+    border: 0 solid var(--TU-color);
+    border-bottom-width: 2px;
   }
   .form-page .form-body {
     background-color: #FFF;
