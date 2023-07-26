@@ -12,7 +12,7 @@
         </AdditionalItemsComponent>
         <div class="form-controls">
           <div :class="'form-control input-' + tabForm.name" v-for="(tabForm, index) in this.getInputfields" :key="index">
-            <label for="{{tabForm.name}}">{{tabForm.label}}</label>
+            <label :for="tabForm.name">{{tabForm.label}}: </label>
             <input :type="tabForm.type" :name="tabForm.name" v-model="tabForm.value" v-if="tabForm.type !== 'textarea' && tabForm.type !== 'selectbox' && tabForm.type !== 'radiogroup' && tabForm.type !== 'formgroup'" />
             <div class="radio-wrapper" v-if="tabForm.type === 'radiogroup'">
               <div v-for="(radioOption, subIndex) in tabForm.radioOptions" :key="subIndex">
@@ -53,14 +53,14 @@ export default {
         "Basics" : {
             subTabs: null,
             inputFields: [
-              { type: 'text', name: 'title', label: 'Title: ', required: true, value: null },
-              { type: 'text', name: 'campaign-url', label: 'Campaign url: ', required: false, value: null },
-              { type: 'date', name: 'start-date', label: 'Start date: ', required: true, value: null },
-              { type: 'date', name: 'end-date', label: 'End date: ', required: true, value: null },
-              { type: 'textarea', name: 'promo-description', label: 'Campaign Promotional description Text: ', required: true, value: null },
-              { type: 'textarea', name: 'promo-summary', label: 'Campaign Promotional Summary Text: ', required: true, value: null },
-              { type: 'text', name: 'ribbon-text', label: 'Ribbon Text: ', required: true, value: null },
-              { type: 'text', name: 'campaign-terms-url: ', label: 'Campaign Terms Url: ', required: false, value: null }
+              { type: 'text', name: 'title', label: 'Title', required: true, value: null },
+              { type: 'text', name: 'campaign-url', label: 'Campaign url', required: false, value: null },
+              { type: 'date', name: 'start-date', label: 'Start date', required: true, value: null },
+              { type: 'date', name: 'end-date', label: 'End date', required: true, value: null },
+              { type: 'textarea', name: 'promo-description', label: 'Campaign Promotional description Text', required: true, value: null },
+              { type: 'textarea', name: 'promo-summary', label: 'Campaign Promotional Summary Text', required: true, value: null },
+              { type: 'text', name: 'ribbon-text', label: 'Ribbon Text', required: true, value: null },
+              { type: 'text', name: 'campaign-terms-url: ', label: 'Campaign Terms Url', required: false, value: null }
             ]
         },
         "Advanced" : {
@@ -69,7 +69,7 @@ export default {
             {
               type: 'selectbox',
               name: 'client-group',
-              label: 'Client Group(s): ',
+              label: 'Client Group(s)',
               options: [
                 "ADVIES",
                 "REST",
@@ -93,7 +93,7 @@ export default {
             {
               type: 'radiogroup',
               name: 'root-indicator',
-              label: 'Root Indicator: ',
+              label: 'Root Indicator',
               radioOptions: [
                 {label: 'Ja', value: 1},
                 {label: 'Nee', value: 0}
@@ -106,23 +106,23 @@ export default {
         "Images" : {
           subTabs: null,
           inputFields: [
-            { type: 'text', name: 'campaign-filter-image', label: 'Campaign Filter Image Url: ', required: true, value: null },
-            { type: 'text', name: 'campaign-filter-overlay-text', label: 'Campaign Filter Overlay Text: ', required: false, value: null },
-            { type: 'text', name: 'campaign-promotional-img-url', label: 'Campaign Promotional Image Url: ', required: true, value: null },
-            { type: 'text', name: 'campaign-promotional-img-alt', label: 'Campaign Promotional Image Alt Text: ', required: true, value: null },
-            { type: 'text', name: 'mobile-image-url', label: 'Mobile Image Url: ', required: false, value: null }
+            { type: 'text', name: 'campaign-filter-image', label: 'Campaign Filter Image Url', required: false, value: null },
+            { type: 'text', name: 'campaign-filter-overlay-text', label: 'Campaign Filter Overlay Text', required: false, value: null },
+            { type: 'text', name: 'campaign-promotional-img-url', label: 'Campaign Promotional Image Url', required: true, value: null },
+            { type: 'text', name: 'campaign-promotional-img-alt', label: 'Campaign Promotional Image Alt Text', required: true, value: null },
+            { type: 'text', name: 'mobile-image-url', label: 'Mobile Image Url', required: false, value: null }
           ]
         },
         "Campaign items" : {
           subTabs: {
             "Basics" : {
               inputFields: [
-                { type: 'text', name: 'campaign-item-title', label: 'Title: ', required: true, value: null },
-                { type: 'textarea', name: 'campaign-item-promo-text', label: 'Promotion Text: ', required: true, value: null },
+                { type: 'text', name: 'campaign-item-title', label: 'Campaign Item Title', required: true, value: null },
+                { type: 'textarea', name: 'campaign-item-promo-text', label: 'Campaign Item Promotion Text', required: true, value: null },
                 {
                   type: 'selectbox',
                   name: 'priority',
-                  label: 'Priority: ',
+                  label: 'Priority',
                   options: [
                     "XS",
                     "S",
@@ -135,17 +135,24 @@ export default {
                   required: true,
                   value: 'M'
                 },
-                { type: 'text', name: 'teaser', label: 'Teaser: ', required: false, value: null },
-                { type: 'text', name: 'tekst', label: 'Tekst: ', required: false, value: null }
+                { type: 'text', name: 'teaser', label: 'Teaser', required: false, value: null },
+                { type: 'text', name: 'extra-tekst', label: 'Tekst', required: false, value: null }
               ]
             },
             "Images" : {
               inputFields: [
-                { type: 'text', name: 'campaign-item-promo-img', label: 'Promotion Image Url: ', required: true, value: null },
-                { type: 'text', name: 'campaign-item-promo-img-alt-text', label: 'Promotion Image Alt Text: ', required: false, value: null },
+                { type: 'text', name: 'campaign-item-promo-img', label: 'Campaign Item Promotion Image Url', required: true, value: null },
+                { type: 'text', name: 'campaign-item-promo-img-alt-text', label: 'Campaign Item Promotion Image Alt Text', required: false, value: null },
               ]
             },
-            "Discounts": {}
+            "Discounts": {
+              inputFields: [
+                { type: 'text', name: 'campaign-item-discount-price', label: 'Discount Price', required: false, value: null },
+                { type: 'text', name: 'campaign-item-discount-percentage', label: 'Discount Percentage', required: false, value: null },
+                { type: 'text', name: 'campaign-item-discount-tu-points', label: 'TU Points', required: false, value: null },
+              ],
+              values: []
+            }
           },
           values: [],
           inputFields: []
@@ -154,7 +161,7 @@ export default {
           subTabs: null,
           values: [],
           inputFields: [
-            { type: 'text', name: 'campaign-item-tag', label: 'Tag: ', required: false, value: null }
+            { type: 'text', name: 'campaign-item-tag', label: 'Tag', required: false, value: null }
           ]
         }
       },
@@ -246,12 +253,20 @@ export default {
       }
     },
     validateInput() {
-      Object.keys(this.tabForms).forEach((key) => {
-        this.tabForms[key].inputFields.forEach((field) => {
-          if (((field.value === null || field.value === '') && field.required) && this.tabForms['Campaign items'].values.length === 0) {
-            this.errorMessages.push(`Er ontbreekt een waarde voor de vereiste eigenschap "${field.label}"`);
-          }
-        });
+      Object.keys(this.tabForms).forEach((tab) => {
+        this.validateFields(this.tabForms[tab].inputFields);
+        if (this.tabForms[tab].subTabs !== null) {
+          Object.keys(this.tabForms[tab].subTabs).forEach(subTab => {
+            this.validateFields(this.tabForms[tab].subTabs[subTab].inputFields);
+          });
+        }
+      });
+    },
+    validateFields(paramInputFields) {
+      paramInputFields.forEach((field) => {
+        if (((field.value === null || field.value === '') && field.required) && this.tabForms['Campaign items'].values.length === 0) {
+          this.errorMessages.push(`Er ontbreekt een waarde voor de vereiste eigenschap "${field.label}"`);
+        }
       });
     }
   }
