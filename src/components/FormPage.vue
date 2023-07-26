@@ -190,8 +190,8 @@ export default {
       return inputFields;
     },
     shouldShowAdditionalActions() {
-      const allowedTabs = ['Campaign items', 'Tags'];
-      return allowedTabs.includes(this.activeTab.mainTab);
+      const allowedTabs = ['Campaign items', 'Tags', "Discounts"];
+      return allowedTabs.includes(this.activeTab.mainTab) && !allowedTabs.includes(this.activeTab.subTab);
     }
   },
   props: {
