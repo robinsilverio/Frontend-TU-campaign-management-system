@@ -16,9 +16,18 @@
           </div>
         </div>
         <div :class="{'form-controls': true, 'sub-tab-form-controls': activeTab.subTab !== null}">
+          <AdditionalItemsComponent v-if="activeTab.mainTab === 'Campaign items' && activeTab.subTab === 'Discounts'" :tab-form="this.tabForms[activeTab.mainTab].subTabs[activeTab.subTab]" :active-tab="this.activeTab.subTab">
+          </AdditionalItemsComponent>
           <div :class="'form-control input-' + tabForm.name" v-for="(tabForm, index) in this.getInputfields" :key="index">
             <label :for="tabForm.name">{{tabForm.label}}: </label>
-            <input :type="tabForm.type" :name="tabForm.name" v-model="tabForm.value" v-if="tabForm.type !== 'textarea' && tabForm.type !== 'selectbox' && tabForm.type !== 'radiogroup' && tabForm.type !== 'formgroup'" />
+            <div class="form-group" v-if="tabForm.type === 'formGroup'">
+              <input :type="tabForm.inputFields[0].type" :name="tabForm.inputFields[0].type" v-model="tabForm.inputFields[0].value" />
+              <div :class="{ 'campaign-item-discount-sku-button': true }" @click="addSku()">
+                <p>Voeg sku toe.</p>
+              </div>
+              <p>Toegevoegde sku's: {{ tabForm.values.join(', ') }}</p>
+            </div>
+            <input :type="tabForm.type" :name="tabForm.name" v-model="tabForm.value" v-if="tabForm.type !== 'textarea' && tabForm.type !== 'selectbox' && tabForm.type !== 'radiogroup' && tabForm.type !== 'formGroup'" />
             <div class="radio-wrapper" v-if="tabForm.type === 'radiogroup'">
               <div v-for="(radioOption, subIndex) in tabForm.radioOptions" :key="subIndex">
                 <input type="radio" :id="`${tabForm.name}-${subIndex}`" :value="radioOption.value" v-model="tabForm.value" />
@@ -32,8 +41,9 @@
           </div>
         </div>
         <div class="additional-form-actions" v-if="this.shouldShowAdditionalActions">
-          <div @click="handleAdditionalFormAction()" v-if="this.activeTab.mainTab === 'Campaign items'">Voeg campaign item toe</div>
+          <div @click="handleAdditionalFormAction()" v-if="this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab !== 'Discounts'">Voeg campaign item toe</div>
           <div @click="handleAdditionalFormAction()" v-if="this.activeTab.mainTab === 'Tags'">Voeg tag toe</div>
+          <div @click="handleAdditionalFormAction()" v-if="this.activeTab.subTab === 'Discounts'">Voeg hier een discount toe</div>
         </div>
         <div class="form-actions">
           <button class="form-submit-btn">{{ this.capitalizedUserAction }} campaign</button>
@@ -51,8 +61,8 @@ export default {
   data() {
     return {
       activeTab: {
-        mainTab: 'Basics',
-        subTab: null,
+        mainTab: 'Campaign items',
+        subTab: 'Discounts',
       },
       tabForms: {
         "Basics" : {
@@ -152,6 +162,15 @@ export default {
             },
             "Discounts": {
               inputFields: [
+                {
+                  type: 'formGroup',
+                  name: 'campaign-item-discount-form-group',
+                  label: 'Discount sku',
+                  inputFields: [
+                    { type: 'text', name: 'campaign-item-discount-sku', required: false, value: null }
+                  ],
+                  values: []
+                },
                 { type: 'text', name: 'campaign-item-discount-price', label: 'Discount Price', required: false, value: null },
                 { type: 'text', name: 'campaign-item-discount-percentage', label: 'Discount Percentage', required: false, value: null },
                 { type: 'text', name: 'campaign-item-discount-tu-points', label: 'TU Points', required: false, value: null },
@@ -190,8 +209,11 @@ export default {
       return inputFields;
     },
     shouldShowAdditionalActions() {
-      const allowedTabs = ['Campaign items', 'Tags', "Discounts"];
-      return allowedTabs.includes(this.activeTab.mainTab) && !allowedTabs.includes(this.activeTab.subTab);
+      const allowedMainTabs = ['Campaign items', 'Tags'];
+      const allowedSubTabs = ['Discounts'];
+      const isMainTabAllowed = allowedMainTabs.includes(this.activeTab.mainTab);
+      const isSubTabAllowed = allowedSubTabs.includes(this.activeTab.subTab);
+      return (isMainTabAllowed && this.activeTab.subTab !== 'Discounts') || isSubTabAllowed;
     }
   },
   props: {
@@ -227,14 +249,38 @@ export default {
       }
       this.tabForms['Campaign items'].values.push(campaignItem)
     },
+    addDiscount() {
+      let discountsList = this.tabForms['Campaign items'].subTabs['Discounts'].values;
+      let discountObject = {
+        discountId: null,
+        tuPoints: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[3].value,
+        skuIds: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values,
+        discountPrice: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[1].value,
+        discountPercentage: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[2].value
+      }
+      discountsList.push(discountObject);
+      this.clearInputFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields);
+      this.clearSkus();
+    },
+    addSku() {
+      let skuList = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values;
+      let skuId = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].inputFields[0].value;
+      skuList.push(skuId);
+      this.clearInputFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].inputFields);
+    },
     addTag() {
       let tagObject = { title: this.tabForms['Tags'].inputFields[0].value };
       this.tabForms['Tags'].values.push(tagObject);
+      this.clearInputFields(this.tabForms['Tags'].inputFields);
     },
     handleAdditionalFormAction() {
-      if (this.activeTab.mainTab === 'Campaign items') {
+      if (this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab !== 'Discounts') {
         this.addCampaignItem();
-      } else {
+      }
+      else if (this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab === 'Discounts') {
+        this.addDiscount();
+      }
+      else {
         this.addTag();
       }
     },
@@ -246,6 +292,12 @@ export default {
         return;
       }
       this.mapFunctions()[this.userAction]();
+    },
+    clearInputFields(paramInputfields) {
+      paramInputfields.forEach(inputField => inputField.value = '');
+    },
+    clearSkus() {
+      this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values = [];
     },
     mapFunctions() {
       return {
@@ -326,7 +378,14 @@ export default {
   form.campaign-form .form-controls
   {
     padding: 20px;
+    border-top: 1px solid #000000;
   }
+
+  form.campaign-form .form-controls .form-group {
+    display: flex;
+    gap: 20px
+  }
+
   form.campaign-form .additional-form-actions,
   form.campaign-form .form-actions {
     padding: 0px 20px 10px 20px;
@@ -336,20 +395,19 @@ export default {
     justify-content: flex-end;
   }
   /* Styling tabform Campaign items*/
-  .campaign-form .additional-form-actions div, .campaign-form .form-actions button {
+
+  .campaign-form .additional-form-actions div, .campaign-item-discount-sku-button, .campaign-form .form-actions button {
     width: fit-content;
     color: #FFF;
     padding: 5px;
     cursor: pointer;
     border: none;
   }
-  .campaign-form .additional-form-actions div {
+  .campaign-form .additional-form-actions div, .campaign-item-discount-sku-button {
     background-color: blue;
+    font-size: 0.8rem;
   }
   .campaign-form .form-actions .form-submit-btn {
     background-color: var(--TU-color);
-  }
-  .campaign-form .form-controls {
-    border-top: 1px solid #000000;
   }
 </style>
