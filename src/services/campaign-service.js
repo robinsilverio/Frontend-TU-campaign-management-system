@@ -25,7 +25,7 @@ export default class CampaignService {
         const authenticatedUser = JSON.parse(localStorage.getItem('user'));
 
         const response = axios
-            .post(`${API_URL}/campaign`, paramCampaign, {
+            .post(API_URL + 'campaign', paramCampaign, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authenticatedUser.token}`

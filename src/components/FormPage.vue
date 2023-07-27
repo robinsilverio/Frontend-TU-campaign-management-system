@@ -54,6 +54,7 @@
 </template>
 <script>
 import AdditionalItemsComponent from "@/components/formpage_components/AdditionalItemsComponent.vue";
+import CampaignDTO from "@/models/CampaignDTO";
 
 export default {
   name: "FormPage",
@@ -329,7 +330,34 @@ export default {
         this.errorMessages = [];
         return;
       }
-      this.mapFunctions()[this.userAction]();
+      let campaignToBeInserted = new CampaignDTO(
+          null,
+          null,
+          this.tabForms["Basics"].inputFields[0].value,
+          this.tabForms["Basics"].inputFields[1].value,
+          this.tabForms["Basics"].inputFields[2].value,
+          this.tabForms["Basics"].inputFields[3].value,
+          '9001',
+          this.tabForms["Basics"].inputFields[4].value,
+          this.tabForms["Basics"].inputFields[5].value,
+          this.tabForms["Basics"].inputFields[6].value,
+          this.tabForms["Basics"].inputFields[7].value,
+          [this.tabForms['Advanced'].inputFields[0].value],
+          this.tabForms['Tags'].values,
+          this.tabForms['Advanced'].inputFields[1].value,
+          this.tabForms['Images'].inputFields[0].value,
+          this.tabForms['Images'].inputFields[1].value,
+          this.tabForms['Images'].inputFields[2].value,
+          this.tabForms['Images'].inputFields[3].value,
+          null,
+          null,
+          null,
+          null,
+          null,
+          this.tabForms["Basics"].inputFields[1].value,
+          this.tabForms["Campaign items"].values,
+      );
+      this.handleFormSubmission()[this.userAction](campaignToBeInserted);
     },
     clearInputFields(paramInputfields) {
       paramInputfields.forEach(inputField => inputField.value = '');
@@ -337,12 +365,20 @@ export default {
     clearSkus() {
       this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values = [];
     },
-    mapFunctions() {
+    handleFormSubmission() {
       return {
-        "create": () =>{
-          this.$toast.success("Een campagne is succesvol toegevoegd.")
+        "create": (paramCampaign) =>{
+          this.$store.dispatch('createCampaign', paramCampaign)
+              .then(
+                  success => {
+                    this.$toast.success("Een campagne is succesvol aangemaakt");
+                  },
+                  error => {
+                    this.$toast.error("Er is iets mis gegaan tijdens het aanmaken van een campagne.");
+                  }
+              )
         },
-        "update": () => {
+        "update": (paramCampaign) => {
           this.$toast.success("Een campagne is succesvol bijgewerkt.");
         }
       }
