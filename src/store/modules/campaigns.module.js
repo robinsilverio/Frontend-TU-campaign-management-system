@@ -31,7 +31,7 @@ export const campaigns = {
             return campaignService.createCampaign(paramCampaign)
                 .then(
                     success => {
-                        commit('addCampaign', success.data.campaign);
+                        commit('addCampaign', success.data);
                         return Promise.resolve(success);
                     },
                     error => { return Promise.reject(error); }

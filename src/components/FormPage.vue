@@ -251,6 +251,7 @@ export default {
         return;
       }
 
+      let campaignItems = this.tabForms['Campaign items'].values;
       let campaignItem = {
         campaignItemId: null,
         promoTitle: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[0].value,
@@ -260,9 +261,9 @@ export default {
         weight: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[2].value,
         teaser: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[3].value,
         extraText: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[4].value,
-        discounts: this.tabForms['Campaign items'].subTabs['Discounts'].values
+        campaignItemDiscounts: this.tabForms['Campaign items'].subTabs['Discounts'].values
       }
-      this.tabForms['Campaign items'].values.push(campaignItem)
+      campaignItems.push(campaignItem);
       this.clearInputFields(this.tabForms['Campaign items'].subTabs['Basics'].inputFields);
       this.clearInputFields(this.tabForms['Campaign items'].subTabs['Images'].inputFields);
     },
@@ -281,7 +282,10 @@ export default {
         discountId: null,
         tuPoints: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[3].value,
         skuIds: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values,
-        discountPrice: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[1].value,
+        discountPrice: {
+          discountId: null,
+          price: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[1].value
+        },
         discountPercentage: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[2].value
       }
       discountsList.push(discountObject);
