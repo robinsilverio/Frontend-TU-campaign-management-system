@@ -114,7 +114,7 @@ export default {
                 {label: 'Ja', value: 1},
                 {label: 'Nee', value: 0}
               ],
-              required: false,
+              required: true,
               value: 1
             }
           ],
@@ -266,6 +266,7 @@ export default {
       campaignItems.push(campaignItem);
       this.clearInputFields(this.tabForms['Campaign items'].subTabs['Basics'].inputFields);
       this.clearInputFields(this.tabForms['Campaign items'].subTabs['Images'].inputFields);
+      this.clearDiscounts();
     },
     addDiscount() {
       this.validateFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields);
@@ -362,12 +363,30 @@ export default {
           this.tabForms["Campaign items"].values,
       );
       this.handleFormSubmission()[this.userAction](campaignToBeInserted);
+      this.clearInputFieldsOfMainTabs();
+      this.clearCampaignItems();
+      this.clearTags();
+      this.$emit('changeUserAction', 'none');
+    },
+    clearInputFieldsOfMainTabs() {
+      Object.keys(this.tabForms).forEach(key => {
+        this.clearInputFields(this.tabForms[key].inputFields);
+      })
     },
     clearInputFields(paramInputfields) {
       paramInputfields.forEach(inputField => inputField.value = '');
     },
     clearSkus() {
       this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values = [];
+    },
+    clearDiscounts() {
+      this.tabForms['Campaign items'].subTabs['Discounts'] = [];
+    },
+    clearCampaignItems() {
+      this.tabForms['Campaign items'].values = [];
+    },
+    clearTags() {
+      this.tabForms['Tags'].values = [];
     },
     handleFormSubmission() {
       return {

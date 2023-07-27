@@ -8,7 +8,11 @@
     <main class="admin-panel">
         <SideBar :user-action="this.userAction" @changeUserAction="changeUserAction"></SideBar>
         <div class="display-component">
-          <FormPage v-if="this.userAction !== 'none' && this.userAction !== 'delete'" :user-action="userAction" :selected-campaign="this.selectedCampaign"></FormPage>
+          <FormPage
+              v-if="this.userAction !== 'none' && this.userAction !== 'delete'"
+              :user-action="userAction"
+              :selected-campaign="this.selectedCampaign"
+              @changeUserAction="changeUserAction"></FormPage>
         </div>
     </main>
 </template>
