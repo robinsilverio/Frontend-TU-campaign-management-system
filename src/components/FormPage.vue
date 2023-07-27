@@ -288,13 +288,19 @@ export default {
       this.clearSkus();
     },
     addSku() {
+      this.validateSkuInputField();
+      if (this.errorMessages.length > 0) {
+        this.errorMessages.forEach(errorMessage => this.$toast.error(errorMessage));
+        this.errorMessages = [];
+        return;
+      }
       let skuList = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values;
       let skuId = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].inputFields[0].value;
       skuList.push(skuId);
       this.clearInputFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].inputFields);
     },
     addTag() {
-      this.validateTag();
+      this.validateTagInputfield();
       if (this.errorMessages.length > 0) {
         this.errorMessages.forEach(errorMessage => this.$toast.error(errorMessage));
         this.errorMessages = [];
@@ -369,7 +375,13 @@ export default {
        this.errorMessages.push("Het is vereist om een of meerdere sku's toe te voegen aan een discount.");
      }
     },
-    validateTag() {
+    validateSkuInputField() {
+      let skuInputField = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].inputFields[0];
+      if (skuInputField.value === null || skuInputField.value === '') {
+        this.errorMessages.push("Het invoeren van sku id is vereist.");
+      }
+    },
+    validateTagInputfield() {
       if (this.tabForms['Tags'].inputFields[0].value === null) {
         this.errorMessages.push("Naam van de tag is vereist.");
       }
