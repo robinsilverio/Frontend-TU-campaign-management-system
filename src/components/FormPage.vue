@@ -69,14 +69,14 @@ export default {
         "Basics" : {
             subTabs: null,
             inputFields: [
-              { type: 'text', name: 'title', label: 'Title', required: true, value: null },
-              { type: 'text', name: 'campaign-url', label: 'Campaign url', required: false, value: null },
-              { type: 'date', name: 'start-date', label: 'Start date', required: true, value: null },
-              { type: 'date', name: 'end-date', label: 'End date', required: true, value: null },
-              { type: 'textarea', name: 'promo-description', label: 'Campaign Promotional description Text', required: true, value: null },
-              { type: 'textarea', name: 'promo-summary', label: 'Campaign Promotional Summary Text', required: true, value: null },
-              { type: 'text', name: 'ribbon-text', label: 'Ribbon Text', required: true, value: null },
-              { type: 'text', name: 'campaign-terms-url: ', label: 'Campaign Terms Url', required: false, value: null }
+              { type: 'text', name: 'title', label: 'Title', required: true, value: null, disabled: false },
+              { type: 'text', name: 'campaign-url', label: 'Campaign url', required: false, value: null, disabled: false },
+              { type: 'date', name: 'start-date', label: 'Start date', required: true, value: null, disabled: false },
+              { type: 'date', name: 'end-date', label: 'End date', required: true, value: null, disabled: false },
+              { type: 'textarea', name: 'promo-description', label: 'Campaign Promotional description Text', required: true, value: null, disabled: false },
+              { type: 'textarea', name: 'promo-summary', label: 'Campaign Promotional Summary Text', required: true, value: null, disabled: false },
+              { type: 'text', name: 'ribbon-text', label: 'Ribbon Text', required: true, value: null, disabled: false },
+              { type: 'text', name: 'campaign-terms-url: ', label: 'Campaign Terms Url', required: false, value: null, disabled: false }
             ]
         },
         "Advanced" : {
@@ -122,19 +122,19 @@ export default {
         "Images" : {
           subTabs: null,
           inputFields: [
-            { type: 'text', name: 'campaign-filter-image', label: 'Campaign Filter Image Url', required: false, value: null },
-            { type: 'text', name: 'campaign-filter-overlay-text', label: 'Campaign Filter Overlay Text', required: false, value: null },
-            { type: 'text', name: 'campaign-promotional-img-url', label: 'Campaign Promotional Image Url', required: true, value: null },
-            { type: 'text', name: 'campaign-promotional-img-alt', label: 'Campaign Promotional Image Alt Text', required: true, value: null },
-            { type: 'text', name: 'mobile-image-url', label: 'Mobile Image Url', required: false, value: null }
+            { type: 'text', name: 'campaign-filter-image', label: 'Campaign Filter Image Url', required: false, value: null, disabled: false },
+            { type: 'text', name: 'campaign-filter-overlay-text', label: 'Campaign Filter Overlay Text', required: false, value: null, disabled: false },
+            { type: 'text', name: 'campaign-promotional-img-url', label: 'Campaign Promotional Image Url', required: true, value: null, disabled: false },
+            { type: 'text', name: 'campaign-promotional-img-alt', label: 'Campaign Promotional Image Alt Text', required: true, value: null, disabled: false },
+            { type: 'text', name: 'mobile-image-url', label: 'Mobile Image Url', required: false, value: null, disabled: false }
           ]
         },
         "Campaign items" : {
           subTabs: {
             "Basics" : {
               inputFields: [
-                { type: 'text', name: 'campaign-item-title', label: 'Campaign Item Title', required: true, value: null },
-                { type: 'textarea', name: 'campaign-item-promo-text', label: 'Campaign Item Promotion Text', required: true, value: null },
+                { type: 'text', name: 'campaign-item-title', label: 'Campaign Item Title', required: true, value: null, disabled: false },
+                { type: 'textarea', name: 'campaign-item-promo-text', label: 'Campaign Item Promotion Text', required: true, value: null, disabled: false },
                 {
                   type: 'selectbox',
                   name: 'priority',
@@ -151,14 +151,14 @@ export default {
                   required: true,
                   value: 'M'
                 },
-                { type: 'text', name: 'teaser', label: 'Teaser', required: false, value: null },
-                { type: 'text', name: 'extra-tekst', label: 'Tekst', required: false, value: null }
+                { type: 'text', name: 'teaser', label: 'Teaser', required: false, value: null, disabled: false },
+                { type: 'text', name: 'extra-tekst', label: 'Tekst', required: false, value: null, disabled: false }
               ]
             },
             "Images" : {
               inputFields: [
-                { type: 'text', name: 'campaign-item-promo-img', label: 'Campaign Item Promotion Image Url', required: true, value: null },
-                { type: 'text', name: 'campaign-item-promo-img-alt-text', label: 'Campaign Item Promotion Image Alt Text', required: false, value: null },
+                { type: 'text', name: 'campaign-item-promo-img', label: 'Campaign Item Promotion Image Url', required: true, value: null, disabled: false },
+                { type: 'text', name: 'campaign-item-promo-img-alt-text', label: 'Campaign Item Promotion Image Alt Text', required: false, value: null, disabled: false },
               ]
             },
             "Discounts": {
@@ -168,7 +168,7 @@ export default {
                   name: 'campaign-item-discount-form-group',
                   label: 'Discount sku',
                   inputFields: [
-                    { type: 'text', name: 'campaign-item-discount-sku', required: false, value: null }
+                    { type: 'text', name: 'campaign-item-discount-sku', required: false, value: null, disabled: false }
                   ],
                   required: false,
                   values: []
@@ -200,7 +200,7 @@ export default {
                   value: null,
                   disabled: true
                 },
-                { type: 'text', name: 'campaign-item-discount-tu-points', label: 'TU Points', required: true, value: null },
+                { type: 'text', name: 'campaign-item-discount-tu-points', label: 'TU Points', required: true, value: null, disabled: false },
               ],
               required: true,
               values: []
@@ -213,7 +213,7 @@ export default {
           subTabs: null,
           values: [],
           inputFields: [
-            { type: 'text', name: 'campaign-item-tag', label: 'Tag', required: true, value: null }
+            { type: 'text', name: 'campaign-item-tag', label: 'Tag', required: true, value: null, disabled: false }
           ]
         }
       },
