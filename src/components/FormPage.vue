@@ -20,17 +20,17 @@
           </AdditionalItemsComponent>
           <div :class="'form-control input-' + tabForm.name" v-for="(tabForm, index) in this.getInputfields" :key="index">
             <label :for="tabForm.name">{{tabForm.label}}: </label>
-            <div class="form-group" v-if="tabForm.type === 'formGroup'">
+            <div class="form-group horizontal" v-if="tabForm.type === 'formGroup'">
               <input :type="tabForm.inputFields[0].type" :name="tabForm.inputFields[0].type" v-model="tabForm.inputFields[0].value" />
               <div :class="{ 'campaign-item-discount-sku-button': true }" @click="addSku()">
                 <p>Voeg sku toe.</p>
               </div>
               <p>Toegevoegde sku's: {{ tabForm.values.join(', ') }}</p>
             </div>
-            <input :type="tabForm.type" :name="tabForm.name" v-model="tabForm.value" v-if="tabForm.type !== 'textarea' && tabForm.type !== 'selectbox' && tabForm.type !== 'radiogroup' && tabForm.type !== 'formGroup'" />
+            <input :type="tabForm.type" :name="tabForm.name" v-model="tabForm.value" :disabled="tabForm.disabled" v-if="tabForm.type !== 'textarea' && tabForm.type !== 'selectbox' && tabForm.type !== 'radiogroup' && tabForm.type !== 'formGroup'" />
             <div class="radio-wrapper" v-if="tabForm.type === 'radiogroup'">
               <div v-for="(radioOption, subIndex) in tabForm.radioOptions" :key="subIndex">
-                <input type="radio" :id="`${tabForm.name}-${subIndex}`" :value="radioOption.value" v-model="tabForm.value" />
+                <input type="radio" :id="`${tabForm.name}-${subIndex}`" :value="radioOption.value" v-model="tabForm.value" @change="handleRadioFunction()[radioOption.onChange]()" />
                 <label :for="`${tabForm.name}-${subIndex}`">{{ radioOption.label }}</label>
               </div>
             </div>
@@ -111,8 +111,8 @@ export default {
               name: 'root-indicator',
               label: 'Root Indicator',
               radioOptions: [
-                {label: 'Ja', value: 1},
-                {label: 'Nee', value: 0}
+                {label: 'Ja', value: 1, onChange: ''},
+                {label: 'Nee', value: 0, onChange: ''}
               ],
               required: true,
               value: 1
@@ -173,8 +173,33 @@ export default {
                   required: false,
                   values: []
                 },
-                { type: 'text', name: 'campaign-item-discount-price', label: 'Discount Price', required: false, value: null },
-                { type: 'text', name: 'campaign-item-discount-percentage', label: 'Discount Percentage', required: false, value: null },
+                {
+                  type: 'radiogroup',
+                  name: 'discount-types',
+                  label: 'Choose discount-types',
+                  radioOptions: [
+                    {label: 'Price', value: 'P', onChange: 'handleDisabledStateOnDiscountSelection'},
+                    {label: 'Percentage', value: 'D', onChange: 'handleDisabledStateOnDiscountSelection'}
+                  ],
+                  required: true,
+                  value: 'P'
+                },
+                {
+                  type: 'text',
+                  name: 'campaign-item-discount-price',
+                  label: 'Discount Price',
+                  required: false,
+                  value: null,
+                  disabled: false
+                },
+                {
+                  type: 'text',
+                  name: 'campaign-item-discount-percentage',
+                  label: 'Discount Percentage',
+                  required: false,
+                  value: null,
+                  disabled: true
+                },
                 { type: 'text', name: 'campaign-item-discount-tu-points', label: 'TU Points', required: true, value: null },
               ],
               required: true,
@@ -327,6 +352,40 @@ export default {
         this.addTag();
       }
     },
+    handleFormSubmission() {
+      return {
+        "create": (paramCampaign) =>{
+          this.$store.dispatch('createCampaign', paramCampaign)
+              .then(
+                  success => {
+                    this.$toast.success("Een campagne is succesvol aangemaakt");
+                  },
+                  error => {
+                    this.$toast.error("Er is iets mis gegaan tijdens het aanmaken van een campagne.");
+                  }
+              )
+        },
+        "update": (paramCampaign) => {
+          this.$toast.success("Een campagne is succesvol bijgewerkt.");
+        }
+      }
+    },
+    handleRadioFunction(paramFunctionName) {
+      return {
+        "handleDisabledStateOnDiscountSelection" : () => this.handleDisabledStateOnDiscountSelection(),
+        "" : () => {}
+      }
+    },
+    handleDisabledStateOnDiscountSelection() {
+
+      let discountTypesRadioGroup = this.tabForms["Campaign items"].subTabs["Discounts"].inputFields[1];
+      let discountPriceInputInputField = this.tabForms["Campaign items"].subTabs["Discounts"].inputFields[2];
+      let discountPercentageInputField = this.tabForms["Campaign items"].subTabs["Discounts"].inputFields[3];
+
+      discountPriceInputInputField.disabled = discountTypesRadioGroup.value === 'D';
+      discountPercentageInputField.disabled = discountTypesRadioGroup.value === 'P';
+
+    },
     formSubmit() {
       this.validateInput();
       this.validateCampaignItems();
@@ -387,24 +446,6 @@ export default {
     },
     clearTags() {
       this.tabForms['Tags'].values = [];
-    },
-    handleFormSubmission() {
-      return {
-        "create": (paramCampaign) =>{
-          this.$store.dispatch('createCampaign', paramCampaign)
-              .then(
-                  success => {
-                    this.$toast.success("Een campagne is succesvol aangemaakt");
-                  },
-                  error => {
-                    this.$toast.error("Er is iets mis gegaan tijdens het aanmaken van een campagne.");
-                  }
-              )
-        },
-        "update": (paramCampaign) => {
-          this.$toast.success("Een campagne is succesvol bijgewerkt.");
-        }
-      }
     },
     validateInput() {
       Object.keys(this.tabForms).forEach((tab) => {
@@ -502,7 +543,13 @@ export default {
 
   form.campaign-form .form-controls .form-group {
     display: flex;
-    gap: 20px
+    gap: 10px
+  }
+  form.campaign-form .form-controls .form-group.horizontal {
+    flex-direction: row;
+  }
+  form.campaign-form .form-controls .form-group.vertical {
+    flex-direction: column;
   }
 
   form.campaign-form .additional-form-actions,
