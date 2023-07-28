@@ -353,8 +353,8 @@ export default {
         this.errorMessages = [];
         return;
       }
-      let tagObject = { title: this.tabForms['Tags'].inputFields[0].value };
-      this.tabForms['Tags'].values.push(tagObject);
+      let tag = this.tabForms['Tags'].inputFields[0].value;
+      this.tabForms['Tags'].values.push(tag);
       this.clearInputFields(this.tabForms['Tags'].inputFields);
     },
     handleAdditionalFormAction() {

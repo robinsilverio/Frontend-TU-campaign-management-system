@@ -3,7 +3,7 @@
     <p>{{ printOrderedListTitle[this.activeTab] }}</p>
     <ol v-if="this.tabForm.values.length > 0">
       <li v-for="(item, index) in this.tabForm.values" :key="index" v-if="activeTab === 'Campaign items'">{{ item.promoTitle }}</li>
-      <li v-for="(item, index) in this.tabForm.values" :key="index" v-if="activeTab === 'Tags'">{{ item.title }}</li>
+      <li v-for="(item, index) in this.tabForm.values" :key="index" v-if="activeTab === 'Tags'">{{ item }}</li>
       <li v-for="(item, index) in this.tabForm.values" :key="index" v-if="activeTab === 'Discounts'">{{ item.skuIds.join(", ") }}</li>
     </ol>
     <p v-else style="color: red; font-weight: bold">De lijst is leeg.</p>
