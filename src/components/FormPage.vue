@@ -178,8 +178,8 @@ export default {
                   name: 'discount-types',
                   label: 'Choose discount-types',
                   radioOptions: [
-                    {label: 'Price', value: 'P', onChange: 'handleDisabledStateOnDiscountSelection'},
-                    {label: 'Percentage', value: 'D', onChange: 'handleDisabledStateOnDiscountSelection'}
+                    { label: 'Price', value: 'P', onChange: 'handleDisabledStateOnDiscountSelection' },
+                    { label: 'Percentage', value: 'PCT', onChange: 'handleDisabledStateOnDiscountSelection' }
                   ],
                   required: true,
                   value: 'P'
@@ -188,7 +188,7 @@ export default {
                   type: 'text',
                   name: 'campaign-item-discount-price',
                   label: 'Discount Price',
-                  required: false,
+                  required: true,
                   value: null,
                   disabled: false
                 },
@@ -196,7 +196,7 @@ export default {
                   type: 'text',
                   name: 'campaign-item-discount-percentage',
                   label: 'Discount Percentage',
-                  required: false,
+                  required: true,
                   value: null,
                   disabled: true
                 },
@@ -303,17 +303,33 @@ export default {
         return;
       }
 
+      let discountTypesRadioGroup = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[1];
+      let discountPriceInputField = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[2];
+      let discountPercentageInputField = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[3];
+      let discountPriceObject = null;
+      let discountPercentageObject = null;
+
+      if (discountTypesRadioGroup.value === 'P') {
+        discountPriceObject = {
+          discountId: null,
+          price: discountPriceInputField.value
+        };
+      } else {
+        discountPercentageObject = {
+          discountId: null,
+          percentage: discountPercentageInputField.value
+        };
+      }
+
       let discountsList = this.tabForms['Campaign items'].subTabs['Discounts'].values;
       let discountObject = {
         discountId: null,
-        tuPoints: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[3].value,
+        tuPoints: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[4].value,
         skuIds: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values,
-        discountPrice: {
-          discountId: null,
-          price: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[1].value
-        },
-        discountPercentage: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[2].value
+        discountPrice: discountPriceObject,
+        discountPercentage: discountPercentageObject
       }
+
       discountsList.push(discountObject);
       this.clearInputFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields);
       this.clearSkus();
@@ -382,7 +398,7 @@ export default {
       let discountPriceInputInputField = this.tabForms["Campaign items"].subTabs["Discounts"].inputFields[2];
       let discountPercentageInputField = this.tabForms["Campaign items"].subTabs["Discounts"].inputFields[3];
 
-      discountPriceInputInputField.disabled = discountTypesRadioGroup.value === 'D';
+      discountPriceInputInputField.disabled = discountTypesRadioGroup.value === 'PCT';
       discountPercentageInputField.disabled = discountTypesRadioGroup.value === 'P';
 
     },
@@ -439,7 +455,7 @@ export default {
       this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values = [];
     },
     clearDiscounts() {
-      this.tabForms['Campaign items'].subTabs['Discounts'] = [];
+      this.tabForms['Campaign items'].subTabs['Discounts'].values = [];
     },
     clearCampaignItems() {
       this.tabForms['Campaign items'].values = [];
@@ -455,7 +471,7 @@ export default {
     validateFields(paramInputFields) {
       let optionalInputfields = ["campaign-item-tag"];
       paramInputFields.forEach((field) => {
-        if (((field.value === null || field.value === '') && field.required) && !optionalInputfields.includes(field.name)) {
+        if (((field.value === null || field.value === '') && field.required && !field.disabled) && !optionalInputfields.includes(field.name)) {
           this.errorMessages.push(`Er ontbreekt een waarde voor de vereiste eigenschap "${field.label}"`);
         }
       });
