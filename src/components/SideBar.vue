@@ -59,6 +59,7 @@
         });
       },
       openWarningModalUponDeletion() {
+        this.$emit('changeUserAction', 'none');
         if (this.selectedCampaignMappings.length > 0) {
           this.$emit('changeUserAction', 'delete');
         } else {

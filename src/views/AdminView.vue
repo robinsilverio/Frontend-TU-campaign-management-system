@@ -11,7 +11,7 @@
           <FormPage
               v-if="this.userAction !== 'none' && this.userAction !== 'delete'"
               :user-action="userAction"
-              :selected-campaign="this.selectedCampaign"
+              :selected-campaign="this.selectedCampaignForUpdate"
               @changeUserAction="changeUserAction"></FormPage>
         </div>
     </main>
@@ -25,12 +25,13 @@
           }
         },
         computed: {
-          selectedCampaign() {
+          selectedCampaignForUpdate() {
             return this.$store.getters.getSelectedCampaign;
           }
         },
         watch: {
-          selectedCampaign(campaign) {
+          selectedCampaignForUpdate(campaign) {
+            this.changeUserAction('update');
           }
         },
         methods: {
