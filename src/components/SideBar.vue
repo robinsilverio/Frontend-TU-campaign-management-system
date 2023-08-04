@@ -65,6 +65,7 @@
         this.$emit('changeUserAction', 'update');
       },
       openWarningModalUponDeletion() {
+        this.$store.commit('updateSelectedCampaign', null);
         this.$emit('changeUserAction', 'none');
         if (this.selectedCampaignMappings.length > 0) {
           this.$emit('changeUserAction', 'delete');

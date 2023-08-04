@@ -29,11 +29,6 @@
             return this.$store.getters.getSelectedCampaign;
           }
         },
-        watch: {
-          selectedCampaignForUpdate(campaign) {
-            this.changeUserAction('update');
-          }
-        },
         methods: {
           changeUserAction(action) {
             this.userAction = action;

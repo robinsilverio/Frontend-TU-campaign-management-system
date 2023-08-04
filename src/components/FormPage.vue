@@ -21,23 +21,23 @@
           <div :class="'form-control input-' + tabForm.name" v-for="(tabForm, index) in this.getInputfields" :key="index">
             <label :for="tabForm.name">{{tabForm.label}}: </label>
             <div class="form-group horizontal" v-if="tabForm.type === 'formGroup'">
-              <input :type="tabForm.inputFields[0].type" :name="tabForm.inputFields[0].type" v-model="tabForm.inputFields[0].value" />
+              <input :type="tabForm.inputFields[0].type" :name="tabForm.inputFields[0].name" v-model="tabForm.inputFields[0].value" />
               <div :class="{ 'campaign-item-discount-sku-button': true }" @click="addSku()">
                 <p>Voeg sku toe.</p>
               </div>
               <p>Toegevoegde sku's: {{ tabForm.values.join(', ') }}</p>
             </div>
-            <input :type="tabForm.type" :name="tabForm.name" v-model="tabForm.value" :disabled="tabForm.disabled" v-if="tabForm.type !== 'textarea' && tabForm.type !== 'selectbox' && tabForm.type !== 'radiogroup' && tabForm.type !== 'formGroup'" />
+            <input :type="tabForm.type" :name="tabForm.name" v-model="tabForm.value" :value="tabForm.value" :disabled="tabForm.disabled" v-if="tabForm.type !== 'textarea' && tabForm.type !== 'selectbox' && tabForm.type !== 'radiogroup' && tabForm.type !== 'formGroup'" />
             <div class="radio-wrapper" v-if="tabForm.type === 'radiogroup'">
               <div v-for="(radioOption, subIndex) in tabForm.radioOptions" :key="subIndex">
                 <input type="radio" :id="`${tabForm.name}-${subIndex}`" :value="radioOption.value" v-model="tabForm.value" @change="handleRadioFunction()[radioOption.onChange]()" />
                 <label :for="`${tabForm.name}-${subIndex}`">{{ radioOption.label }}</label>
               </div>
             </div>
-            <select :name="tabForm.name" v-model="tabForm.value" v-if="tabForm.type !== 'radiogroup' && tabForm.type === 'selectbox'">
+            <select :name="tabForm.name" v-model="tabForm.value" multiple :value="tabForm.value" v-if="tabForm.type !== 'radiogroup' && tabForm.type === 'selectbox'">
               <option v-for="(option, subIndex) in tabForm.options" :key="subIndex" :value="option">{{ option }}</option>
             </select>
-            <textarea name="{{tabForm.name}}" v-if="tabForm.type === 'textarea'" v-model="tabForm.value"></textarea>
+            <textarea :name="tabForm.name" v-if="tabForm.type === 'textarea'" v-model="tabForm.value"></textarea>
           </div>
         </div>
         <div class="additional-form-actions" v-if="this.shouldShowAdditionalActions">
@@ -70,13 +70,13 @@ export default {
             subTabs: null,
             inputFields: [
               { type: 'text', name: 'title', label: 'Title', required: true, value: null, disabled: false },
-              { type: 'text', name: 'campaign-url', label: 'Campaign url', required: false, value: null, disabled: false },
-              { type: 'date', name: 'start-date', label: 'Start date', required: true, value: null, disabled: false },
-              { type: 'date', name: 'end-date', label: 'End date', required: true, value: null, disabled: false },
-              { type: 'textarea', name: 'promo-description', label: 'Campaign Promotional description Text', required: true, value: null, disabled: false },
-              { type: 'textarea', name: 'promo-summary', label: 'Campaign Promotional Summary Text', required: true, value: null, disabled: false },
-              { type: 'text', name: 'ribbon-text', label: 'Ribbon Text', required: true, value: null, disabled: false },
-              { type: 'text', name: 'campaign-terms-url: ', label: 'Campaign Terms Url', required: false, value: null, disabled: false }
+              { type: 'text', name: 'relativeUrl', label: 'Campaign url', required: false, value: null, disabled: false },
+              { type: 'date', name: 'startDate', label: 'Start date', required: true, value: null, disabled: false },
+              { type: 'date', name: 'endDate', label: 'End date', required: true, value: null, disabled: false },
+              { type: 'textarea', name: 'promoDescriptionText', label: 'Campaign Promotional description Text', required: true, value: null, disabled: false },
+              { type: 'textarea', name: 'promoSummaryText', label: 'Campaign Promotional Summary Text', required: true, value: null, disabled: false },
+              { type: 'text', name: 'ribbonType', label: 'Ribbon Text', required: true, value: null, disabled: false },
+              { type: 'text', name: 'termsUrl', label: 'Campaign Terms Url', required: false, value: null, disabled: false }
             ]
         },
         "Advanced" : {
@@ -84,7 +84,7 @@ export default {
           inputFields: [
             {
               type: 'selectbox',
-              name: 'client-group',
+              name: 'campaignClientGroups',
               label: 'Client Group(s)',
               options: [
                 "ADVIES",
@@ -108,7 +108,7 @@ export default {
             },
             {
               type: 'radiogroup',
-              name: 'root-indicator',
+              name: 'rootIndicator',
               label: 'Root Indicator',
               radioOptions: [
                 {label: 'Ja', value: 1, onChange: ''},
@@ -122,11 +122,11 @@ export default {
         "Images" : {
           subTabs: null,
           inputFields: [
-            { type: 'text', name: 'campaign-filter-image', label: 'Campaign Filter Image Url', required: false, value: null, disabled: false },
-            { type: 'text', name: 'campaign-filter-overlay-text', label: 'Campaign Filter Overlay Text', required: false, value: null, disabled: false },
-            { type: 'text', name: 'campaign-promotional-img-url', label: 'Campaign Promotional Image Url', required: true, value: null, disabled: false },
-            { type: 'text', name: 'campaign-promotional-img-alt', label: 'Campaign Promotional Image Alt Text', required: true, value: null, disabled: false },
-            { type: 'text', name: 'mobile-image-url', label: 'Mobile Image Url', required: false, value: null, disabled: false }
+            { type: 'text', name: 'filterImgUrl', label: 'Campaign Filter Image Url', required: false, value: null, disabled: false },
+            { type: 'text', name: 'filterOverlayText', label: 'Campaign Filter Overlay Text', required: false, value: null, disabled: false },
+            { type: 'text', name: 'promoImgUrl', label: 'Campaign Promotional Image Url', required: true, value: null, disabled: false },
+            { type: 'text', name: 'promoImgAltText', label: 'Campaign Promotional Image Alt Text', required: true, value: null, disabled: false },
+            { type: 'text', name: 'appImageUrl', label: 'Mobile Image Url', required: false, value: null, disabled: false }
           ]
         },
         "Campaign items" : {
@@ -242,6 +242,20 @@ export default {
       const isMainTabAllowed = allowedMainTabs.includes(this.activeTab.mainTab);
       const isSubTabAllowed = allowedSubTabs.includes(this.activeTab.subTab);
       return (isMainTabAllowed && this.activeTab.subTab !== 'Discounts') || isSubTabAllowed;
+    }
+  },
+  watch: {
+    selectedCampaign() {
+      this.loadValuesInInputFieldsFromSelectedCampaign();
+    },
+    userAction(useraction) {
+      if (useraction !== 'update') {
+        this.clearInputFieldsOfMainTabs();
+        this.clearCampaignItems();
+        this.clearTags();
+      } else {
+        this.loadValuesInInputFieldsFromSelectedCampaign();
+      }
     }
   },
   props: {
@@ -501,6 +515,36 @@ export default {
       if (this.tabForms['Tags'].inputFields[0].value === null) {
         this.errorMessages.push("Naam van de tag is vereist.");
       }
+    },
+    loadValuesInInputFieldsFromSelectedCampaign() {
+      Object.keys(this.tabForms).forEach(tabs => {
+        this.tabForms[tabs].inputFields.forEach(field => {
+          field.value = this.selectedCampaign[field.name];
+          if (['startDate', 'endDate'].includes(field.name)) {
+            field.value = this.formatDate(this.selectedCampaign[field.name]);
+          } else if (['rootIndicator'].includes(field.name)) {
+            field.value = (field.value) ? 1 : 0;
+          }
+        });
+        if (['Tags'].includes(tabs)) {
+          this.tabForms[tabs].values = this.selectedCampaign.campaignTags;
+        } else if (['Campaign items'].includes(tabs)) {
+          this.tabForms[tabs].values = this.selectedCampaign.campaignItems;
+        }
+      });
+    },
+    formatDate(paramStringDate) {
+      let date = new Date(paramStringDate);
+      let day = String(date.getDate()).padStart(2, '0');
+      let month = String(date.getMonth() + 1).padStart(2, '0'); //Months are zero based
+      let year = date.getFullYear();
+
+      return `${year}-${month}-${day}`; // Correct format is 'yyyy-mm-dd'
+    }
+  },
+  created() {
+    if (this.selectedCampaign !== null) {
+      this.loadValuesInInputFieldsFromSelectedCampaign();
     }
   }
 }
