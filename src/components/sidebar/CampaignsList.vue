@@ -22,7 +22,7 @@
         selectAll: false
       }
     },
-    emits: ['onSelectAllCheckBoxes'],
+    emits: ['onSelectAllCheckBoxes', 'changeUserActionOnSelectSingleCampaignForUpdate'],
     props: {
       campaignMappings: {
         type: Array,
@@ -45,6 +45,7 @@
         this.$emit('onSelectAllCheckBoxes', this.selectAll);
       },
       onSelectCampaign(campaign) {
+        this.$emit('changeUserActionOnSelectSingleCampaignForUpdate');
         this.$store.commit('updateSelectedCampaign', campaign);
       }
     }

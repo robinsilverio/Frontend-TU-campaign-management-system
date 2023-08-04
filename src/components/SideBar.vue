@@ -12,6 +12,7 @@
     <campaigns-list
         :campaignMappings="this.getCampaignMappings"
         @onSelectAllCheckBoxes="onSelectAllCheckBoxes"
+        @changeUserActionOnSelectSingleCampaignForUpdate="changeUserActionOnSelectSingleCampaignForUpdate"
         :resetSelectAll="resetSelectAll"></campaigns-list>
   </div>
 </template>
@@ -59,6 +60,9 @@
         this.getCampaignMappings.forEach(campaignMapping => {
           campaignMapping.checked = state;
         });
+      },
+      changeUserActionOnSelectSingleCampaignForUpdate() {
+        this.$emit('changeUserAction', 'update');
       },
       openWarningModalUponDeletion() {
         this.$emit('changeUserAction', 'none');
