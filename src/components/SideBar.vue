@@ -10,7 +10,7 @@
       <button class="create-button" @click="openCreateForm()">Create campaign</button>
     </div>
     <campaigns-list
-        :campaignMappings="this.campaignMappings"
+        :campaignMappings="this.getCampaignMappings"
         @onSelectAllCheckBoxes="onSelectAllCheckBoxes"
         :resetSelectAll="resetSelectAll"></campaigns-list>
   </div>
@@ -18,6 +18,7 @@
 <script>
   import CampaignsList from "@/components/sidebar/CampaignsList.vue";
   import WarningModal from "@/components/WarningModal.vue";
+  import {mapActions, mapGetters} from "vuex";
 
   export default {
     name: "SideBar",
@@ -36,8 +37,9 @@
       }
     },
     computed : {
+      ...mapGetters(['getCampaignMappings']),
       selectedCampaignMappings() {
-        return this.campaignMappings
+        return this.getCampaignMappings
             .filter(campaignMapping => campaignMapping.checked)
             .map(campaignMapping => campaignMapping.campaign);
       }
@@ -45,7 +47,7 @@
     methods: {
       onModalClosed() {
         this.$emit('changeUserAction', 'none');
-        this.campaignMappings.forEach((campaignMapping) => {
+        this.getCampaignMappings.forEach((campaignMapping) => {
           if (campaignMapping.checked) campaignMapping.checked = false;
         });
         this.resetSelectAll = true;
@@ -54,7 +56,7 @@
         });
       },
       onSelectAllCheckBoxes(state) {
-        this.campaignMappings.forEach(campaignMapping => {
+        this.getCampaignMappings.forEach(campaignMapping => {
           campaignMapping.checked = state;
         });
       },
@@ -68,19 +70,14 @@
       },
       openCreateForm() {
         this.$emit('changeUserAction', 'create');
-      }
+      },
+      ...mapActions(['retrieveCampaigns'])
     },
     mounted() {
-      this.$store.dispatch('retrieveCampaigns')
-          .then(
-              success => {
-                this.campaignMappings = this.$store.getters.getCampaignMappings;
-              },
-              error => {
-                this.$toast.error('Er is een fout opgetreden tijdens het laden van campagnes. Probeer het later opnieuw.');
-                console.log(error);
-              }
-          );
+      this.retrieveCampaigns().catch(error => {
+        this.$toast.error('Er is een fout opgetreden tijdens het laden van campagnes. Probeer het later opnieuw.');
+        console.log(error);
+      });
     }
   }
 </script>
