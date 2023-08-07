@@ -1,14 +1,19 @@
 import axios from "axios"
 import store from "@/store";
 export default class CampaignService {
+
+    getBaseUrl() {
+        return store.getters.getBaseUrl;
+    }
+    getAuthenticationToken() {
+        return `Bearer ${JSON.parse(localStorage.getItem('user')).token}`;
+    }
     retrieveCampaigns() {
-        const API_URL = store.getters.getBaseUrl;
-        const authenticatedUser = JSON.parse(localStorage.getItem('user'));
-        const response = axios
-            .get(API_URL + 'campaign/all', {
+        return axios
+            .get(`${this.getBaseUrl()}campaign/all`, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authenticatedUser.token}`
+                    'Authorization': this.getAuthenticationToken()
                 }
             })
             .then(response => {
@@ -17,18 +22,14 @@ export default class CampaignService {
             .catch(error => {
                 throw error;
             });
-        return response;
     }
 
     createCampaign(paramCampaign) {
-        const API_URL = store.getters.getBaseUrl;
-        const authenticatedUser = JSON.parse(localStorage.getItem('user'));
-
-        const response = axios
-            .post(API_URL + 'campaign', paramCampaign, {
+        return axios
+            .post(`${this.getBaseUrl()}campaign`, paramCampaign, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authenticatedUser.token}`
+                    'Authorization': this.getAuthenticationToken()
                 }
             })
             .then(response => {
@@ -37,17 +38,14 @@ export default class CampaignService {
             .catch(error => {
                 throw error;
             });
-        return response;
     }
 
     updateCampaign(paramCampaign) {
-        const API_URL = store.getters.getBaseUrl;
-        const authenticatedUser = JSON.parse(localStorage.getItem("user"));
-        const response = axios
-            .put(API_URL + `campaign`, paramCampaign, {
+        return axios
+            .put(`${this.getBaseUrl()}campaign`, paramCampaign, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authenticatedUser.token}`
+                    'Authorization': this.getAuthenticationToken()
                 }
             })
             .then(response =>  {
@@ -56,17 +54,14 @@ export default class CampaignService {
             .catch(error => {
                 throw error
             });
-        return response;
     }
 
     deleteCampaign(paramCampaign) {
-        const API_URL = store.getters.getBaseUrl;
-        const authenticatedUser = JSON.parse(localStorage.getItem('user'));
-        const response = axios
-            .delete(API_URL + `campaign/delete/${paramCampaign.campaignId}`, {
+        return axios
+            .delete(`${this.getBaseUrl()}campaign/delete/${paramCampaign.campaignId}`, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authenticatedUser.token}`
+                    'Authorization': this.getAuthenticationToken()
                 }
             })
             .then(response => {
@@ -75,16 +70,13 @@ export default class CampaignService {
             .catch(error => {
                 throw error;
             });
-        return response;
     }
     deleteSelectedCampaigns(paramSelectedCampaigns) {
-        const API_URL = store.getters.getBaseUrl;
-        const authenticatedUser = JSON.parse(localStorage.getItem('user'));
-        const response = axios
-            .delete(API_URL + `campaign/delete/selected-campaigns`, {
+        return axios
+            .delete(`${this.getBaseUrl()}campaign/delete/selected-campaigns`, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authenticatedUser.token}`
+                    'Authorization': this.getAuthenticationToken()
                 },
                 data: paramSelectedCampaigns
             })
@@ -94,6 +86,5 @@ export default class CampaignService {
             .catch(error => {
                 throw error;
             });
-        return response;
     }
 }
