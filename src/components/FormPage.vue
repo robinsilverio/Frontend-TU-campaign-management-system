@@ -382,9 +382,10 @@ export default {
       }
     },
     handleFormSubmission() {
+
       return {
-        "create": (paramCampaign) =>{
-          this.$store.dispatch('createCampaign', paramCampaign)
+        "create": (campaignToBeInserted) =>{
+          this.$store.dispatch('createCampaign', campaignToBeInserted)
               .then(
                   success => {
                     this.$toast.success("Een campagne is succesvol aangemaakt");
@@ -394,8 +395,16 @@ export default {
                   }
               )
         },
-        "update": (paramCampaign) => {
-          this.$toast.success("Een campagne is succesvol bijgewerkt.");
+        "update": (campaignToBeUpdated) => {
+          this.$store.dispatch('updateCampaign', campaignToBeUpdated)
+              .then(
+                  success => {
+                    this.$toast.success("Een campagne is succesvol bijgewerkt.");
+                  },
+                  error => {
+                    this.$toast.success("Er is iets mis gegaan tijdens het bijwerken van een campagne.");
+                  }
+              );
         }
       }
     },
@@ -423,8 +432,9 @@ export default {
         this.errorMessages = [];
         return;
       }
-      let campaignToBeInserted = new CampaignDTO(
-          null,
+
+      let campaign = new CampaignDTO(
+          (this.selectedCampaign !== null) ? this.selectedCampaign.campaignId : null,
           null,
           this.tabForms["Basics"].inputFields[0].value,
           this.tabForms["Basics"].inputFields[1].value,
@@ -450,7 +460,7 @@ export default {
           this.tabForms["Basics"].inputFields[1].value,
           this.tabForms["Campaign items"].values,
       );
-      this.handleFormSubmission()[this.userAction](campaignToBeInserted);
+      this.handleFormSubmission()[this.userAction](campaign);
       this.clearInputFieldsOfMainTabs();
       this.clearCampaignItems();
       this.clearTags();
@@ -547,6 +557,9 @@ export default {
       this.loadValuesInInputFieldsFromSelectedCampaign();
       this.loadCampaignItemsAndTags();
     }
+  },
+  beforeUnmount() {
+    this.$store.commit('updateSelectedCampaign', null);
   }
 }
 </script>

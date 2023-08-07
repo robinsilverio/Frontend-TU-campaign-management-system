@@ -38,7 +38,16 @@ export const campaigns = {
                 )
         },
         updateCampaign({commit}, paramCampaign) {
-
+            return campaignService.updateCampaign(paramCampaign)
+                .then(
+                    success => {
+                        commit('replaceCampaignAfterUpdate', success.data);
+                        return Promise.resolve(success);
+                    },
+                    error => {
+                        return Promise.reject(error);
+                    }
+                )
         },
         deleteCampaign({commit}, paramCampaign) {
             return campaignService.deleteCampaign(paramCampaign)
@@ -76,6 +85,12 @@ export const campaigns = {
                     .findIndex(campaignMapping => campaignMapping.campaign.campaignId === campaign.campaignId);
                 state.campaignMappings.splice(campaignIndex, 1);
             }
+        },
+        replaceCampaignAfterUpdate(state, updatedCampaign) {
+            state.campaignMappings.map(
+                campaignMapping => campaignMapping.campaign.campaignId === updatedCampaign.campaignId ?
+                campaignMapping.campaign = updatedCampaign : campaignMapping.campaign
+            );
         },
         setCampaigns(state, paramCampaigns) {
 
