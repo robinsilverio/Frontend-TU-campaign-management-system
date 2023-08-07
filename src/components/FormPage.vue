@@ -271,7 +271,7 @@ export default {
       if (this.activeTab.mainTab === 'Campaign items') {
         this.activeTab.subTab = 'Basics';
       } else {
-        this.activeTab.subTab = null;
+        this.changeSubTab(null);
       }
     },
     changeSubTab(paramTabName) {
@@ -283,11 +283,7 @@ export default {
       this.validateFields(this.tabForms['Campaign items'].subTabs['Images'].inputFields);
       this.validateDiscounts();
 
-      if (this.errorMessages.length > 0) {
-        this.errorMessages.forEach(errorMessage => this.$toast.error(errorMessage));
-        this.errorMessages = [];
-        return;
-      }
+      if (this.hasValidationErrors()) return;
 
       let campaignItems = this.tabForms['Campaign items'].values;
       let campaignItem = {
@@ -349,11 +345,7 @@ export default {
     },
     addSku() {
       this.validateSkuInputField();
-      if (this.errorMessages.length > 0) {
-        this.errorMessages.forEach(errorMessage => this.$toast.error(errorMessage));
-        this.errorMessages = [];
-        return;
-      }
+      if (this.hasValidationErrors()) return;
       let skuList = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values;
       let skuId = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].inputFields[0].value;
       skuList.push(skuId);
@@ -361,11 +353,7 @@ export default {
     },
     addTag() {
       this.validateTagInputfield();
-      if (this.errorMessages.length > 0) {
-        this.errorMessages.forEach(errorMessage => this.$toast.error(errorMessage));
-        this.errorMessages = [];
-        return;
-      }
+      if (this.hasValidationErrors()) return;
       let tag = this.tabForms['Tags'].inputFields[0].value;
       this.tabForms['Tags'].values.push(tag);
       this.clearInputFields(this.tabForms['Tags'].inputFields);
@@ -427,11 +415,7 @@ export default {
     formSubmit() {
       this.validateInput();
       this.validateCampaignItems();
-      if (this.errorMessages.length > 0) {
-        this.errorMessages.forEach(errorMessage => this.$toast.error(errorMessage));
-        this.errorMessages = [];
-        return;
-      }
+      if (this.hasValidationErrors()) return;
 
       let campaign = new CampaignDTO(
           (this.selectedCampaign !== null) ? this.selectedCampaign.campaignId : null,
@@ -485,6 +469,14 @@ export default {
     },
     clearTags() {
       this.tabForms['Tags'].values = [];
+    },
+    hasValidationErrors() {
+      if (this.errorMessages.length > 0) {
+        this.errorMessages.forEach(errorMessage => this.$toast.error(errorMessage));
+        this.errorMessages = [];
+        return true;
+      }
+      return false;
     },
     validateInput() {
       Object.keys(this.tabForms).forEach((tab) => {
