@@ -34,7 +34,7 @@
                 <label :for="`${tabForm.name}-${subIndex}`">{{ radioOption.label }}</label>
               </div>
             </div>
-            <select :name="tabForm.name" v-model="tabForm.value" multiple :value="tabForm.value" v-if="tabForm.type !== 'radiogroup' && tabForm.type === 'selectbox'">
+            <select :name="tabForm.name" v-model="tabForm.value" :value="tabForm.value" v-if="tabForm.type !== 'radiogroup' && tabForm.type === 'selectbox'">
               <option v-for="(option, subIndex) in tabForm.options" :key="subIndex" :value="option">{{ option }}</option>
             </select>
             <textarea :name="tabForm.name" v-if="tabForm.type === 'textarea'" v-model="tabForm.value"></textarea>
@@ -522,6 +522,8 @@ export default {
           field.value = this.selectedCampaign[field.name];
           if (['startDate', 'endDate'].includes(field.name)) {
             field.value = this.formatDate(this.selectedCampaign[field.name]);
+          } else if (['campaignClientGroups'].includes(field.name)) {
+            field.value = (this.selectedCampaign[field.name] !== null) ? this.selectedCampaign[field.name][0] : null;
           } else if (['rootIndicator'].includes(field.name)) {
             field.value = (field.value) ? 1 : 0;
           }
