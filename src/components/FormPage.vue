@@ -247,14 +247,13 @@ export default {
   watch: {
     selectedCampaign() {
       this.loadValuesInInputFieldsFromSelectedCampaign();
+      this.loadCampaignItemsAndTags();
     },
     userAction(useraction) {
       if (useraction !== 'update') {
         this.clearInputFieldsOfMainTabs();
         this.clearCampaignItems();
         this.clearTags();
-      } else {
-        this.loadValuesInInputFieldsFromSelectedCampaign();
       }
     }
   },
@@ -516,11 +515,15 @@ export default {
         this.errorMessages.push("Naam van de tag is vereist.");
       }
     },
+    loadCampaignItemsAndTags() {
+      this.tabForms['Campaign items'].values = this.selectedCampaign.campaignItems;
+      this.tabForms['Tags'].values = this.selectedCampaign.campaignTags;
+    },
     loadValuesInInputFieldsFromSelectedCampaign() {
       Object.keys(this.tabForms).forEach(tabs => {
         this.tabForms[tabs].inputFields.forEach(field => {
           field.value = this.selectedCampaign[field.name];
-          if (['startDate', 'endDate'].includes(field.name)) {
+          if (field.type === 'date') {
             field.value = this.formatDate(this.selectedCampaign[field.name]);
           } else if (['campaignClientGroups'].includes(field.name)) {
             field.value = (this.selectedCampaign[field.name] !== null) ? this.selectedCampaign[field.name][0] : null;
@@ -528,11 +531,6 @@ export default {
             field.value = (field.value) ? 1 : 0;
           }
         });
-        if (['Tags'].includes(tabs)) {
-          this.tabForms[tabs].values = this.selectedCampaign.campaignTags;
-        } else if (['Campaign items'].includes(tabs)) {
-          this.tabForms[tabs].values = this.selectedCampaign.campaignItems;
-        }
       });
     },
     formatDate(paramStringDate) {
@@ -547,6 +545,7 @@ export default {
   created() {
     if (this.selectedCampaign !== null) {
       this.loadValuesInInputFieldsFromSelectedCampaign();
+      this.loadCampaignItemsAndTags();
     }
   }
 }
