@@ -314,15 +314,14 @@ export default {
       this.loadDiscountValuesInForm();
     },
     handleFormActionCampaignItem() {
-      let campaignItems = this.tabForms['Campaign items'].values;
       return {
         "create" : (paramCampaignItem) => {
-          campaignItems.push(paramCampaignItem);
+          this.tabForms['Campaign items'].values.push(paramCampaignItem);
         },
         "update" : (paramCampaignItem) => {
-          campaignItems.map(
+          this.tabForms['Campaign items'].values = this.tabForms['Campaign items'].values.map(
               campaignItem => campaignItem.campaignItemId === paramCampaignItem.campaignItemId ?
-              campaignItem = paramCampaignItem : campaignItem
+                  paramCampaignItem : campaignItem
           );
           this.userActionsOnSubForms.campaignItemsForm = 'create';
         }
