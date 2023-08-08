@@ -8,7 +8,12 @@
     <div class="form-body">
       <h1>{{ this.capitalizedActiveTab }}</h1>
       <form class="campaign-form" name="campaign-form" @submit.prevent="formSubmit">
-        <AdditionalItemsComponent v-if="activeTab.mainTab === 'Campaign items' || activeTab.mainTab === 'Tags'" :tab-form="this.tabForms[activeTab.mainTab]" :active-tab="this.activeTab.mainTab">
+        <AdditionalItemsComponent
+            v-if="activeTab.mainTab === 'Campaign items' || activeTab.mainTab === 'Tags'"
+            :tab-form="this.tabForms[activeTab.mainTab]"
+            :active-tab="this.activeTab.mainTab"
+            @onSelectCampaignItem="onSelectCampaignItem"
+        >
         </AdditionalItemsComponent>
         <div class="sub-tab-header" v-if="activeTab.subTab !== null">
           <div :class="{'tab': true, 'active': activeTab.subTab === key}" v-for="(value, key, index) in this.tabForms[activeTab.mainTab].subTabs" :key="index" @click="changeSubTab(key)">
@@ -16,7 +21,12 @@
           </div>
         </div>
         <div :class="{'form-controls': true, 'sub-tab-form-controls': activeTab.subTab !== null}">
-          <AdditionalItemsComponent v-if="activeTab.mainTab === 'Campaign items' && activeTab.subTab === 'Discounts'" :tab-form="this.tabForms[activeTab.mainTab].subTabs[activeTab.subTab]" :active-tab="this.activeTab.subTab">
+          <AdditionalItemsComponent
+              v-if="activeTab.mainTab === 'Campaign items' && activeTab.subTab === 'Discounts'"
+              :tab-form="this.tabForms[activeTab.mainTab].subTabs[activeTab.subTab]"
+              :active-tab="this.activeTab.subTab"
+              @onSelectDiscount="onSelectDiscount"
+          >
           </AdditionalItemsComponent>
           <div :class="'form-control input-' + tabForm.name" v-for="(tabForm, index) in this.getInputfields" :key="index">
             <label :for="tabForm.name">{{tabForm.label}}: </label>
@@ -217,7 +227,9 @@ export default {
       },
       errorMessages: [],
       PERCENTAGE: 'PCT',
-      PRICE: 'P'
+      PRICE: 'P',
+      selectedCampaignItem: null,
+      selectedDiscount: null
     }
   },
   computed: {
@@ -285,6 +297,14 @@ export default {
     },
     changeSubTab(paramTabName) {
       this.activeTab.subTab = paramTabName;
+    },
+    onSelectCampaignItem(paramCampaignItem){
+      this.selectedCampaignItem = paramCampaignItem;
+      this.loadCampaignItemValuesInForm();
+    },
+    onSelectDiscount(paramDiscount){
+      this.selectedDiscount = paramDiscount;
+      this.loadDiscountValuesInForm();
     },
     addCampaignItem() {
 
@@ -526,6 +546,24 @@ export default {
       this.tabForms['Campaign items'].values = this.selectedCampaign.campaignItems;
       this.tabForms['Tags'].values = this.selectedCampaign.campaignTags;
     },
+    loadCampaignItemValuesInForm() {
+      this.tabForms['Campaign items'].subTabs['Basics'].inputFields[0].value = this.selectedCampaignItem.promoTitle;
+      this.tabForms['Campaign items'].subTabs['Basics'].inputFields[1].value = this.selectedCampaignItem.promoText;
+      this.tabForms['Campaign items'].subTabs['Images'].inputFields[0].value = this.selectedCampaignItem.promoImgUrl;
+      this.tabForms['Campaign items'].subTabs['Images'].inputFields[1].value = this.selectedCampaignItem.promoImgAltText;
+      this.tabForms['Campaign items'].subTabs['Basics'].inputFields[2].value = this.selectedCampaignItem.weight;
+      this.tabForms['Campaign items'].subTabs['Basics'].inputFields[3].value = this.selectedCampaignItem.teaser;
+      this.tabForms['Campaign items'].subTabs['Basics'].inputFields[4].value = this.selectedCampaignItem.expect;
+      this.tabForms['Campaign items'].subTabs['Discounts'].values = this.selectedCampaignItem.campaignItemDiscounts
+    },
+    loadDiscountValuesInForm() {
+      this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[1].value = (this.selectedDiscount.discountPrice !== null) ? this.PRICE : this.PERCENTAGE;
+      this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[2].value = (this.selectedDiscount.discountPrice !== null) ? this.selectedDiscount.discountPrice.price : null;
+      this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[3].value = (this.selectedDiscount.discountPercentage !== null) ? this.selectedDiscount.discountPercentage.percentage : null;
+      this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[4].value = this.selectedDiscount.tuPoints;
+      this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values = this.selectedDiscount.skuIds;
+      this.handleDisabledStateOnDiscountSelection();
+    },
     loadValuesInInputFieldsFromSelectedCampaign() {
       Object.keys(this.tabForms).forEach(tabs => {
         this.tabForms[tabs].inputFields.forEach(field => {
@@ -557,6 +595,8 @@ export default {
   },
   beforeUnmount() {
     this.$store.commit('updateSelectedCampaign', null);
+    this.selectedCampaignItem = null;
+    this.selectedDiscount = null;
   }
 }
 </script>
