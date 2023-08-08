@@ -40,10 +40,8 @@
             <textarea :name="tabForm.name" v-if="tabForm.type === 'textarea'" v-model="tabForm.value"></textarea>
           </div>
         </div>
-        <div class="additional-form-actions" v-if="this.shouldShowAdditionalActions">
-          <div @click="handleAdditionalFormAction()" v-if="this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab !== 'Discounts'">Voeg campaign item toe</div>
-          <div @click="handleAdditionalFormAction()" v-if="this.activeTab.mainTab === 'Tags'">Voeg tag toe</div>
-          <div @click="handleAdditionalFormAction()" v-if="this.activeTab.subTab === 'Discounts'">Voeg hier een discount toe</div>
+        <div class="additional-form-actions" v-if="shouldShowAdditionalActions">
+          <div @click="handleAdditionalFormAction">{{ this.showActionText }}</div>
         </div>
         <div class="form-actions">
           <button class="form-submit-btn">{{ this.capitalizedUserAction }} campaign</button>
@@ -217,7 +215,9 @@ export default {
           ]
         }
       },
-      errorMessages: []
+      errorMessages: [],
+      PERCENTAGE: 'PCT',
+      PRICE: 'P'
     }
   },
   computed: {
@@ -242,6 +242,15 @@ export default {
       const isMainTabAllowed = allowedMainTabs.includes(this.activeTab.mainTab);
       const isSubTabAllowed = allowedSubTabs.includes(this.activeTab.subTab);
       return (isMainTabAllowed && this.activeTab.subTab !== 'Discounts') || isSubTabAllowed;
+    },
+    showActionText() {
+      if (this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab !== 'Discounts') {
+        return this.userAction === 'create' ? 'Voeg campaign item toe' : 'Campaign item bijwerken';
+      } else if (this.activeTab.mainTab === 'Tags') {
+        return this.userAction === 'create' ? 'Voeg tag toe' : 'Tag bijwerken';
+      } else {
+        return this.userAction === 'create' ? 'Voeg hier een discount toe' : 'Discount bijwerken';
+      }
     }
   },
   watch: {
@@ -306,11 +315,7 @@ export default {
       this.validateFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields);
       this.validateSkus();
 
-      if (this.errorMessages.length > 0) {
-        this.errorMessages.forEach(errorMessage => this.$toast.error(errorMessage));
-        this.errorMessages = [];
-        return;
-      }
+      if(this.hasValidationErrors()) return;
 
       let discountTypesRadioGroup = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[1];
       let discountPriceInputField = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[2];
@@ -318,7 +323,7 @@ export default {
       let discountPriceObject = null;
       let discountPercentageObject = null;
 
-      if (discountTypesRadioGroup.value === 'P') {
+      if (discountTypesRadioGroup.value === this.PRICE) {
         discountPriceObject = {
           discountId: null,
           price: discountPriceInputField.value
@@ -408,8 +413,8 @@ export default {
       let discountPriceInputInputField = this.tabForms["Campaign items"].subTabs["Discounts"].inputFields[2];
       let discountPercentageInputField = this.tabForms["Campaign items"].subTabs["Discounts"].inputFields[3];
 
-      discountPriceInputInputField.disabled = discountTypesRadioGroup.value === 'PCT';
-      discountPercentageInputField.disabled = discountTypesRadioGroup.value === 'P';
+      discountPriceInputInputField.disabled = discountTypesRadioGroup.value === this.PERCENTAGE;
+      discountPercentageInputField.disabled = discountTypesRadioGroup.value === this.PRICE;
 
     },
     formSubmit() {
