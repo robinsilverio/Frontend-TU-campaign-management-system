@@ -51,7 +51,7 @@
           </div>
         </div>
         <div class="additional-form-actions" v-if="shouldShowAdditionalActions">
-          <div @click="handleAdditionalFormAction">{{ this.showActionText }}</div>
+          <div @click="handleAdditionalFormAction">{{ this.showAdditionalActionText }}</div>
         </div>
         <div class="form-actions">
           <button class="form-submit-btn">{{ this.capitalizedUserAction }} campaign</button>
@@ -69,6 +69,11 @@ export default {
   components: {AdditionalItemsComponent},
   data() {
     return {
+      userActionsOnSubForms: {
+        campaignItemsForm: 'create',
+        discountsForm: 'create',
+        tagsForm: 'create'
+      },
       activeTab: {
         mainTab: 'Basics',
         subTab: null,
@@ -255,13 +260,13 @@ export default {
       const isSubTabAllowed = allowedSubTabs.includes(this.activeTab.subTab);
       return (isMainTabAllowed && this.activeTab.subTab !== 'Discounts') || isSubTabAllowed;
     },
-    showActionText() {
+    showAdditionalActionText() {
       if (this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab !== 'Discounts') {
-        return this.userAction === 'create' ? 'Voeg campaign item toe' : 'Campaign item bijwerken';
+        return this.userActionsOnSubForms.campaignItemsForm === 'create' ? 'Voeg campaign item toe' : 'Campaign item bijwerken';
       } else if (this.activeTab.mainTab === 'Tags') {
-        return this.userAction === 'create' ? 'Voeg tag toe' : 'Tag bijwerken';
+        return this.userActionsOnSubForms.tagsForm === 'create' ? 'Voeg tag toe' : 'Tag bijwerken';
       } else {
-        return this.userAction === 'create' ? 'Voeg hier een discount toe' : 'Discount bijwerken';
+        return this.userActionsOnSubForms.discountsForm === 'create' ? 'Voeg hier een discount toe' : 'Discount bijwerken';
       }
     }
   },
@@ -299,37 +304,29 @@ export default {
       this.activeTab.subTab = paramTabName;
     },
     onSelectCampaignItem(paramCampaignItem){
+      this.userActionsOnSubForms.campaignItemsForm = 'update';
       this.selectedCampaignItem = paramCampaignItem;
       this.loadCampaignItemValuesInForm();
     },
     onSelectDiscount(paramDiscount){
+      this.userActionsOnSubForms.discountsForm = 'update'
       this.selectedDiscount = paramDiscount;
       this.loadDiscountValuesInForm();
     },
-    addCampaignItem() {
-
-      this.validateFields(this.tabForms['Campaign items'].subTabs['Basics'].inputFields);
-      this.validateFields(this.tabForms['Campaign items'].subTabs['Images'].inputFields);
-      this.validateDiscounts();
-
-      if (this.hasValidationErrors()) return;
-
+    handleFormActionCampaignItem() {
       let campaignItems = this.tabForms['Campaign items'].values;
-      let campaignItem = {
-        campaignItemId: null,
-        promoTitle: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[0].value,
-        promoText: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[1].value,
-        promoImgUrl: this.tabForms['Campaign items'].subTabs['Images'].inputFields[0].value,
-        promoImgAltText: this.tabForms['Campaign items'].subTabs['Images'].inputFields[1].value,
-        weight: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[2].value,
-        teaser: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[3].value,
-        extraText: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[4].value,
-        campaignItemDiscounts: this.tabForms['Campaign items'].subTabs['Discounts'].values
+      return {
+        "create" : (paramCampaignItem) => {
+          campaignItems.push(paramCampaignItem);
+        },
+        "update" : (paramCampaignItem) => {
+          campaignItems.map(
+              campaignItem => campaignItem.campaignItemId === paramCampaignItem.campaignItemId ?
+              campaignItem = paramCampaignItem : campaignItem
+          );
+          this.userActionsOnSubForms.campaignItemsForm = 'create';
+        }
       }
-      campaignItems.push(campaignItem);
-      this.clearInputFields(this.tabForms['Campaign items'].subTabs['Basics'].inputFields);
-      this.clearInputFields(this.tabForms['Campaign items'].subTabs['Images'].inputFields);
-      this.clearDiscounts();
     },
     addDiscount() {
       this.validateFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields);
@@ -385,7 +382,26 @@ export default {
     },
     handleAdditionalFormAction() {
       if (this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab !== 'Discounts') {
-        this.addCampaignItem();
+        this.validateFields(this.tabForms['Campaign items'].subTabs['Basics'].inputFields);
+        this.validateFields(this.tabForms['Campaign items'].subTabs['Images'].inputFields);
+        this.validateDiscounts();
+
+        if (this.hasValidationErrors()) return;
+        let campaignItem = {
+          campaignItemId: (this.selectedCampaignItem !== null) ? this.selectedCampaignItem.campaignItemId : null,
+          promoTitle: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[0].value,
+          promoText: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[1].value,
+          promoImgUrl: this.tabForms['Campaign items'].subTabs['Images'].inputFields[0].value,
+          promoImgAltText: this.tabForms['Campaign items'].subTabs['Images'].inputFields[1].value,
+          weight: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[2].value,
+          teaser: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[3].value,
+          extraText: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[4].value,
+          campaignItemDiscounts: this.tabForms['Campaign items'].subTabs['Discounts'].values
+        }
+        this.handleFormActionCampaignItem()[this.userActionsOnSubForms.campaignItemsForm](campaignItem);
+        this.clearInputFields(this.tabForms['Campaign items'].subTabs['Basics'].inputFields);
+        this.clearInputFields(this.tabForms['Campaign items'].subTabs['Images'].inputFields);
+        this.clearDiscounts();
       }
       else if (this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab === 'Discounts') {
         this.addDiscount();
