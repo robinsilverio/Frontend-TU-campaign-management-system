@@ -327,42 +327,33 @@ export default {
         }
       }
     },
-    addDiscount() {
-      this.validateFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields);
-      this.validateSkus();
+    handleFormActionDiscount() {
+      return {
+        "create": (paramDiscountToBeInserted) => {
+          this.tabForms['Campaign items'].subTabs['Discounts'].values.push(paramDiscountToBeInserted);
+        },
+        "update": (paramDiscountToBeUpdated, inputFieldsForDeterminingDiscountType) => {
 
-      if(this.hasValidationErrors()) return;
+          const existingDiscount = this.tabForms['Campaign items'].subTabs['Discounts'].values.find(
+              discount => discount.discountId === paramDiscountToBeUpdated.discountId
+          );
 
-      let discountTypesRadioGroup = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[1];
-      let discountPriceInputField = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[2];
-      let discountPercentageInputField = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[3];
-      let discountPriceObject = null;
-      let discountPercentageObject = null;
+          if (existingDiscount) {
+            const isCurrentTypePrice = existingDiscount.discountPrice != null;
+            const isCurrentTypePercentage = existingDiscount.discountPercentage != null;
+            const isUpdatingToPrice = inputFieldsForDeterminingDiscountType['radioGroupDiscountType'].value === this.PRICE;
+            const isUpdatingToPercentage = inputFieldsForDeterminingDiscountType['radioGroupDiscountType'].value === this.PERCENTAGE;
 
-      if (discountTypesRadioGroup.value === this.PRICE) {
-        discountPriceObject = {
-          discountId: null,
-          price: discountPriceInputField.value
-        };
-      } else {
-        discountPercentageObject = {
-          discountId: null,
-          percentage: discountPercentageInputField.value
-        };
+            if (isCurrentTypePrice !== isUpdatingToPrice || isCurrentTypePercentage !== isUpdatingToPercentage) {
+              this.$toast.warning('You cannot change the discount type.');
+              return;
+            }
+            this.tabForms['Campaign items'].subTabs['Discounts'].values = this.updateDiscountToList(this.tabForms['Campaign items'].subTabs['Discounts'].values, paramDiscountToBeUpdated);
+            this.selectedCampaignItem.campaignItemDiscounts = this.updateDiscountToList(this.selectedCampaignItem.campaignItemDiscounts, paramDiscountToBeUpdated);
+          }
+          this.userActionsOnSubForms.discountsForm = 'create';
+        }
       }
-
-      let discountsList = this.tabForms['Campaign items'].subTabs['Discounts'].values;
-      let discountObject = {
-        discountId: null,
-        tuPoints: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[4].value,
-        skuIds: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values,
-        discountPrice: discountPriceObject,
-        discountPercentage: discountPercentageObject
-      }
-
-      discountsList.push(discountObject);
-      this.clearInputFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields);
-      this.clearSkus();
     },
     addSku() {
       this.validateSkuInputField();
@@ -403,7 +394,48 @@ export default {
         this.clearDiscounts();
       }
       else if (this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab === 'Discounts') {
-        this.addDiscount();
+
+        this.validateFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields);
+        this.validateSkus();
+
+        if(this.hasValidationErrors()) return;
+
+        let discountTypesRadioGroup = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[1];
+        let discountPriceInputField = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[2];
+        let discountPercentageInputField = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[3];
+
+        let inputFieldsForDeterminingDiscountType = {
+          "radioGroupDiscountType": discountTypesRadioGroup,
+          "inputFieldPrice": discountPriceInputField,
+          "inputFieldPercentage": discountPercentageInputField
+        };
+
+        let discountObject = {
+          discountId: (this.selectedDiscount !== null) ? this.selectedDiscount.discountId : null,
+          tuPoints: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[4].value,
+          skuIds: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values,
+          discountPrice: null,
+          discountPercentage: null
+        }
+
+        const discountType = inputFieldsForDeterminingDiscountType['radioGroupDiscountType'].value;
+        const selectedDiscountType = this.selectedDiscount ? (discountType === this.PRICE ? this.selectedDiscount.discountPrice : this.selectedDiscount.discountPercentage) : null;
+
+        if (discountType === this.PRICE) {
+          discountObject.discountPrice = {
+            discountId: selectedDiscountType ? selectedDiscountType.discountId : null,
+            price: inputFieldsForDeterminingDiscountType['inputFieldPrice'].value
+          };
+        } else {
+          discountObject.discountPercentage = {
+            discountId: selectedDiscountType ? selectedDiscountType.discountId : null,
+            percentage: inputFieldsForDeterminingDiscountType['inputFieldPercentage'].value
+          };
+        }
+
+        this.handleFormActionDiscount()[this.userActionsOnSubForms.discountsForm](discountObject, inputFieldsForDeterminingDiscountType);
+        this.clearInputFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields);
+        this.clearSkus();
       }
       else {
         this.addTag();
@@ -600,6 +632,11 @@ export default {
       let year = date.getFullYear();
 
       return `${year}-${month}-${day}`; // Correct format is 'yyyy-mm-dd'
+    },
+    updateDiscountToList(list, discountToBeUpdated) {
+      return list.map(
+          discount => discount.discountId === discountToBeUpdated.discountId ? discountToBeUpdated : discount
+      );
     }
   },
   created() {
