@@ -1,7 +1,7 @@
 <template>
   <WarningModal
       :list-of-selected-campaigns="selectedCampaignMappings"
-      v-if="this.userAction === 'delete'"
+      v-if="this.userAction === UserAction.DELETE"
       @onModalClosed="onModalClosed"
   ></WarningModal>
   <div class="campaigns-sidebar">
@@ -20,6 +20,7 @@
   import CampaignsList from "@/components/sidebar/CampaignsList.vue";
   import WarningModal from "@/components/WarningModal.vue";
   import {mapActions, mapGetters} from "vuex";
+  import {UserAction} from "@/enums/userAction";
 
   export default {
     name: "SideBar",
@@ -28,7 +29,7 @@
     props: {
       userAction: {
         type: String,
-        default: () => 'none'
+        default: () => UserAction.NONE
       },
     },
     data() {
@@ -38,6 +39,9 @@
       }
     },
     computed : {
+      UserAction() {
+        return UserAction
+      },
       ...mapGetters(['getCampaignMappings']),
       selectedCampaignMappings() {
         return this.getCampaignMappings
@@ -47,7 +51,7 @@
     },
     methods: {
       onModalClosed() {
-        this.$emit('changeUserAction', 'none');
+        this.$emit('changeUserAction', UserAction.NONE);
         this.getCampaignMappings.forEach((campaignMapping) => {
           if (campaignMapping.checked) campaignMapping.checked = false;
         });
@@ -62,19 +66,19 @@
         });
       },
       changeUserActionOnSelectSingleCampaignForUpdate() {
-        this.$emit('changeUserAction', 'update');
+        this.$emit('changeUserAction', UserAction.UPDATE);
       },
       openWarningModalUponDeletion() {
         this.$store.commit('updateSelectedCampaign', null);
-        this.$emit('changeUserAction', 'none');
+        this.$emit('changeUserAction', UserAction.NONE);
         if (this.selectedCampaignMappings.length > 0) {
-          this.$emit('changeUserAction', 'delete');
+          this.$emit('changeUserAction', UserAction.DELETE);
         } else {
           this.$toast.warning('Selecteer een campagne om te verwijderen.');
         }
       },
       openCreateForm() {
-        this.$emit('changeUserAction', 'create');
+        this.$emit('changeUserAction', UserAction.CREATE);
       },
       ...mapActions(['retrieveCampaigns'])
     },

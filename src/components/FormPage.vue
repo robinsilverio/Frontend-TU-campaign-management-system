@@ -64,6 +64,7 @@
 <script>
 import AdditionalItemsComponent from "@/components/formpage_components/AdditionalItemsComponent.vue";
 import CampaignDTO from "@/models/CampaignDTO";
+import {UserAction} from "@/enums/userAction";
 
 export default {
   name: "FormPage",
@@ -71,9 +72,9 @@ export default {
   data() {
     return {
       userActionsOnSubForms: {
-        campaignItemsForm: 'create',
-        discountsForm: 'create',
-        tagsForm: 'create'
+        campaignItemsForm: UserAction.CREATE,
+        discountsForm: UserAction.CREATE,
+        tagsForm: UserAction.CREATE
       },
       activeTab: {
         mainTab: 'Basics',
@@ -264,11 +265,11 @@ export default {
     },
     showAdditionalActionText() {
       if (this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab !== 'Discounts') {
-        return this.userActionsOnSubForms.campaignItemsForm === 'create' ? 'Voeg campaign item toe' : 'Campaign item bijwerken';
+        return this.userActionsOnSubForms.campaignItemsForm === UserAction.CREATE ? 'Voeg campaign item toe' : 'Campaign item bijwerken';
       } else if (this.activeTab.mainTab === 'Tags') {
-        return this.userActionsOnSubForms.tagsForm === 'create' ? 'Voeg tag toe' : 'Tag bijwerken';
+        return this.userActionsOnSubForms.tagsForm === UserAction.CREATE ? 'Voeg tag toe' : 'Tag bijwerken';
       } else {
-        return this.userActionsOnSubForms.discountsForm === 'create' ? 'Voeg hier een discount toe' : 'Discount bijwerken';
+        return this.userActionsOnSubForms.discountsForm === UserAction.CREATE ? 'Voeg hier een discount toe' : 'Discount bijwerken';
       }
     }
   },
@@ -278,7 +279,7 @@ export default {
       this.loadCampaignItemsAndTags();
     },
     userAction(useraction) {
-      if (useraction !== 'update') {
+      if (useraction !== UserAction.UPDATE) {
         this.clearInputFieldsOfMainTabs();
         this.clearCampaignItems();
         this.clearTags();
@@ -306,40 +307,40 @@ export default {
       this.activeTab.subTab = paramTabName;
     },
     onSelectCampaignItem(paramCampaignItem){
-      this.userActionsOnSubForms.campaignItemsForm = 'update';
+      this.userActionsOnSubForms.campaignItemsForm = UserAction.UPDATE;
       this.selectedCampaignItem = paramCampaignItem;
       this.loadCampaignItemValuesInForm();
     },
     onSelectDiscount(paramDiscount){
-      this.userActionsOnSubForms.discountsForm = 'update'
+      this.userActionsOnSubForms.discountsForm = UserAction.UPDATE
       this.selectedDiscount = paramDiscount;
       this.loadDiscountValuesInForm();
     },
     onSelectTag(paramTag) {
-      this.userActionsOnSubForms.tagsForm = 'update';
+      this.userActionsOnSubForms.tagsForm = UserAction.UPDATE;
       this.selectedTag = paramTag;
       this.loadTagValuesInForm();
     },
     handleFormActionCampaignItem() {
       return {
-        "create" : (paramCampaignItem) => {
+        [UserAction.CREATE]: (paramCampaignItem) => {
           this.tabForms['Campaign items'].values.push(paramCampaignItem);
         },
-        "update" : (paramCampaignItem) => {
+        [UserAction.UPDATE]: (paramCampaignItem) => {
           this.tabForms['Campaign items'].values = this.tabForms['Campaign items'].values.map(
               campaignItem => campaignItem.campaignItemId === paramCampaignItem.campaignItemId ?
                   paramCampaignItem : campaignItem
           );
-          this.userActionsOnSubForms.campaignItemsForm = 'create';
+          this.userActionsOnSubForms.campaignItemsForm = UserAction.CREATE;
         }
       }
     },
     handleFormActionDiscount() {
       return {
-        "create": (paramDiscountToBeInserted) => {
+        [UserAction.CREATE]: (paramDiscountToBeInserted) => {
           this.tabForms['Campaign items'].subTabs['Discounts'].values.push(paramDiscountToBeInserted);
         },
-        "update": (paramDiscountToBeUpdated, inputFieldsForDeterminingDiscountType) => {
+        [UserAction.UPDATE]: (paramDiscountToBeUpdated, inputFieldsForDeterminingDiscountType) => {
 
           const existingDiscount = this.tabForms['Campaign items'].subTabs['Discounts'].values.find(
               discount => discount.discountId === paramDiscountToBeUpdated.discountId
@@ -358,7 +359,7 @@ export default {
             this.tabForms['Campaign items'].subTabs['Discounts'].values = this.updateDiscountToList(this.tabForms['Campaign items'].subTabs['Discounts'].values, paramDiscountToBeUpdated);
             this.selectedCampaignItem.campaignItemDiscounts = this.updateDiscountToList(this.selectedCampaignItem.campaignItemDiscounts, paramDiscountToBeUpdated);
           }
-          this.userActionsOnSubForms.discountsForm = 'create';
+          this.userActionsOnSubForms.discountsForm = UserAction.CREATE;
         }
       }
     },
@@ -368,7 +369,7 @@ export default {
         return this.tabForms['Tags'].values.find(tag => tag.toLowerCase() === tagToBeSearched.toLowerCase());
       }
       return {
-        "create": (paramTagToBeInserted) => {
+        [UserAction.CREATE]: (paramTagToBeInserted) => {
           const existingTag = findExistingTag(paramTagToBeInserted);
           if (existingTag !== undefined) {
             this.$toast.warning('Deze tag bestaat al.');
@@ -376,11 +377,11 @@ export default {
             this.tabForms['Tags'].values.push(paramTagToBeInserted);
           }
         },
-        "update": (paramTagToBeUpdated) => {
+        [UserAction.UPDATE]: (paramTagToBeUpdated) => {
           this.tabForms['Tags'].values = this.tabForms['Tags'].values.map(
               tag => tag === this.selectedTag ? paramTagToBeUpdated : tag
           );
-          this.userActionsOnSubForms.tagsForm = 'create';
+          this.userActionsOnSubForms.tagsForm = UserAction.CREATE;
         }
       }
     },
@@ -470,7 +471,7 @@ export default {
     handleFormSubmission() {
 
       return {
-        "create": (campaignToBeInserted) =>{
+        [UserAction.CREATE]: (campaignToBeInserted) =>{
           this.$store.dispatch('createCampaign', campaignToBeInserted)
               .then(
                   success => {
@@ -481,7 +482,7 @@ export default {
                   }
               )
         },
-        "update": (campaignToBeUpdated) => {
+        [UserAction.UPDATE]: (campaignToBeUpdated) => {
           this.$store.dispatch('updateCampaign', campaignToBeUpdated)
               .then(
                   success => {
@@ -546,7 +547,7 @@ export default {
       this.clearInputFieldsOfMainTabs();
       this.clearCampaignItems();
       this.clearTags();
-      this.$emit('changeUserAction', 'none');
+      this.$emit('changeUserAction', UserAction.NONE);
     },
     clearInputFieldsOfMainTabs() {
       Object.keys(this.tabForms).forEach(key => {

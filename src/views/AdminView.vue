@@ -9,7 +9,7 @@
         <SideBar :user-action="this.userAction" @changeUserAction="changeUserAction"></SideBar>
         <div class="display-component">
           <FormPage
-              v-if="this.userAction !== 'none' && this.userAction !== 'delete'"
+              v-if="this.userAction !== UserAction.NONE && this.userAction !== UserAction.DELETE"
               :user-action="userAction"
               :selected-campaign="this.selectedCampaignForUpdate"
               @changeUserAction="changeUserAction"></FormPage>
@@ -17,11 +17,13 @@
     </main>
 </template>
 <script>
+    import {UserAction} from "@/enums/userAction";
+
     export default {
         name: 'AdminPanel',
         data() {
           return {
-            userAction: 'none'
+            userAction: UserAction.NONE
           }
         },
         computed: {
