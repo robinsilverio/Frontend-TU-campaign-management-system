@@ -321,72 +321,89 @@ export default {
       this.selectedTag = paramTag;
       this.loadTagValuesInForm();
     },
+    addCampaignItem(paramCampaignItemToBeInserted) {
+      this.tabForms['Campaign items'].values.push(paramCampaignItemToBeInserted);
+    },
+    updateCampaignItem(paramCampaignItemToBeUpdated) {
+      this.tabForms['Campaign items'].values = this.tabForms['Campaign items'].values.map(
+          campaignItem => campaignItem.campaignItemId === paramCampaignItemToBeUpdated.campaignItemId ?
+              paramCampaignItemToBeUpdated : campaignItem
+      );
+      this.userActionsOnSubForms.campaignItemsForm = UserAction.CREATE;
+    },
+    addDiscount(paramDiscountToBeInserted) {
+      this.tabForms['Campaign items'].subTabs['Discounts'].values.push(paramDiscountToBeInserted);
+    },
+    updateDiscount(paramDiscountToBeUpdated, paramInputFieldsForDeterminingDiscountType) {
+      const existingDiscount = this.tabForms['Campaign items'].subTabs['Discounts'].values.find(
+          discount => discount.discountId === paramDiscountToBeUpdated.discountId
+      );
+      const updateDiscountToList = (list, discountToBeUpdated) => {
+        return list.map(
+            discount => discount.discountId === discountToBeUpdated.discountId ? discountToBeUpdated : discount
+        );
+      }
+
+      if (existingDiscount) {
+        const isCurrentTypePrice = existingDiscount.discountPrice != null;
+        const isCurrentTypePercentage = existingDiscount.discountPercentage != null;
+        const isUpdatingToPrice = paramInputFieldsForDeterminingDiscountType['radioGroupDiscountType'].value === this.PRICE;
+        const isUpdatingToPercentage = paramInputFieldsForDeterminingDiscountType['radioGroupDiscountType'].value === this.PERCENTAGE;
+
+        if (isCurrentTypePrice !== isUpdatingToPrice || isCurrentTypePercentage !== isUpdatingToPercentage) {
+          this.$toast.warning('You cannot change the discount type.');
+          return;
+        }
+        this.tabForms['Campaign items'].subTabs['Discounts'].values = updateDiscountToList(this.tabForms['Campaign items'].subTabs['Discounts'].values, paramDiscountToBeUpdated);
+        this.selectedCampaignItem.campaignItemDiscounts = updateDiscountToList(this.selectedCampaignItem.campaignItemDiscounts, paramDiscountToBeUpdated);
+      }
+      this.userActionsOnSubForms.discountsForm = UserAction.CREATE;
+    },
+    addTag(paramTagToBeInserted) {
+      const findExistingTag = (tagToBeSearched) => {
+        return this.tabForms['Tags'].values.find(tag => tag.toLowerCase() === tagToBeSearched.toLowerCase());
+      }
+      const existingTag = findExistingTag(paramTagToBeInserted);
+      if (existingTag !== undefined) {
+        this.$toast.warning('Deze tag bestaat al.');
+      } else {
+        this.tabForms['Tags'].values.push(paramTagToBeInserted);
+      }
+    },
+    updateTag(paramTagToBeUpdated) {
+      this.tabForms['Tags'].values = this.tabForms['Tags'].values.map(
+          tag => tag === this.selectedTag ? paramTagToBeUpdated : tag
+      );
+      this.userActionsOnSubForms.tagsForm = UserAction.CREATE;
+    },
     handleFormActionCampaignItem() {
       return {
-        [UserAction.CREATE]: (paramCampaignItem) => {
-          this.tabForms['Campaign items'].values.push(paramCampaignItem);
+        [UserAction.CREATE]: (paramCampaignItemToBeInserted) => {
+          this.addCampaignItem(paramCampaignItemToBeInserted);
         },
-        [UserAction.UPDATE]: (paramCampaignItem) => {
-          this.tabForms['Campaign items'].values = this.tabForms['Campaign items'].values.map(
-              campaignItem => campaignItem.campaignItemId === paramCampaignItem.campaignItemId ?
-                  paramCampaignItem : campaignItem
-          );
-          this.userActionsOnSubForms.campaignItemsForm = UserAction.CREATE;
+        [UserAction.UPDATE]: (paramCampaignItemToBeUpdated) => {
+          this.updateCampaignItem(paramCampaignItemToBeUpdated);
         }
       }
     },
     handleFormActionDiscount() {
       return {
         [UserAction.CREATE]: (paramDiscountToBeInserted) => {
-          this.tabForms['Campaign items'].subTabs['Discounts'].values.push(paramDiscountToBeInserted);
+          this.addDiscount(paramDiscountToBeInserted);
         },
         [UserAction.UPDATE]: (paramDiscountToBeUpdated, inputFieldsForDeterminingDiscountType) => {
-
-          const existingDiscount = this.tabForms['Campaign items'].subTabs['Discounts'].values.find(
-              discount => discount.discountId === paramDiscountToBeUpdated.discountId
-          );
-          const updateDiscountToList = (list, discountToBeUpdated) => {
-            return list.map(
-                discount => discount.discountId === discountToBeUpdated.discountId ? discountToBeUpdated : discount
-            );
-          }
-
-          if (existingDiscount) {
-            const isCurrentTypePrice = existingDiscount.discountPrice != null;
-            const isCurrentTypePercentage = existingDiscount.discountPercentage != null;
-            const isUpdatingToPrice = inputFieldsForDeterminingDiscountType['radioGroupDiscountType'].value === this.PRICE;
-            const isUpdatingToPercentage = inputFieldsForDeterminingDiscountType['radioGroupDiscountType'].value === this.PERCENTAGE;
-
-            if (isCurrentTypePrice !== isUpdatingToPrice || isCurrentTypePercentage !== isUpdatingToPercentage) {
-              this.$toast.warning('You cannot change the discount type.');
-              return;
-            }
-            this.tabForms['Campaign items'].subTabs['Discounts'].values = updateDiscountToList(this.tabForms['Campaign items'].subTabs['Discounts'].values, paramDiscountToBeUpdated);
-            this.selectedCampaignItem.campaignItemDiscounts = updateDiscountToList(this.selectedCampaignItem.campaignItemDiscounts, paramDiscountToBeUpdated);
-          }
-          this.userActionsOnSubForms.discountsForm = UserAction.CREATE;
+          this.updateDiscount(paramDiscountToBeUpdated, inputFieldsForDeterminingDiscountType);
         }
       }
     },
     handleFormActionTag() {
 
-      const findExistingTag = (tagToBeSearched) => {
-        return this.tabForms['Tags'].values.find(tag => tag.toLowerCase() === tagToBeSearched.toLowerCase());
-      }
       return {
         [UserAction.CREATE]: (paramTagToBeInserted) => {
-          const existingTag = findExistingTag(paramTagToBeInserted);
-          if (existingTag !== undefined) {
-            this.$toast.warning('Deze tag bestaat al.');
-          } else {
-            this.tabForms['Tags'].values.push(paramTagToBeInserted);
-          }
+          this.addTag(paramTagToBeInserted);
         },
         [UserAction.UPDATE]: (paramTagToBeUpdated) => {
-          this.tabForms['Tags'].values = this.tabForms['Tags'].values.map(
-              tag => tag === this.selectedTag ? paramTagToBeUpdated : tag
-          );
-          this.userActionsOnSubForms.tagsForm = UserAction.CREATE;
+          this.updateTag(paramTagToBeUpdated);
         }
       }
     },
