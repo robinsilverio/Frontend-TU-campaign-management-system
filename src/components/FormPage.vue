@@ -612,7 +612,8 @@ export default {
       }
     },
     validateTagInputfield() {
-      if (this.tabForms['Tags'].inputFields[0].value === null) {
+      let tagInputField = this.tabForms['Tags'].inputFields[0];
+      if (tagInputField.value === null || tagInputField.value === undefined || tagInputField.value === '') {
         this.errorMessages.push("Naam van de tag is vereist.");
       }
     },

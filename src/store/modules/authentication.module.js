@@ -34,7 +34,6 @@ export const authentication = {
             state.user = user;
         },
         mutateLogout(state) {
-            console.log("Loggin out");
             state.status.loggedIn = false;
             state.user = null;
         },

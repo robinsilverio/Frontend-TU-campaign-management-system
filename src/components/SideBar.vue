@@ -85,7 +85,6 @@
     mounted() {
       this.retrieveCampaigns().catch(error => {
         this.$toast.error('Er is een fout opgetreden tijdens het laden van campagnes. Probeer het later opnieuw.');
-        console.log(error);
       });
     }
   }
