@@ -345,6 +345,11 @@ export default {
           const existingDiscount = this.tabForms['Campaign items'].subTabs['Discounts'].values.find(
               discount => discount.discountId === paramDiscountToBeUpdated.discountId
           );
+          const updateDiscountToList = (list, discountToBeUpdated) => {
+            return list.map(
+                discount => discount.discountId === discountToBeUpdated.discountId ? discountToBeUpdated : discount
+            );
+          }
 
           if (existingDiscount) {
             const isCurrentTypePrice = existingDiscount.discountPrice != null;
@@ -356,8 +361,8 @@ export default {
               this.$toast.warning('You cannot change the discount type.');
               return;
             }
-            this.tabForms['Campaign items'].subTabs['Discounts'].values = this.updateDiscountToList(this.tabForms['Campaign items'].subTabs['Discounts'].values, paramDiscountToBeUpdated);
-            this.selectedCampaignItem.campaignItemDiscounts = this.updateDiscountToList(this.selectedCampaignItem.campaignItemDiscounts, paramDiscountToBeUpdated);
+            this.tabForms['Campaign items'].subTabs['Discounts'].values = updateDiscountToList(this.tabForms['Campaign items'].subTabs['Discounts'].values, paramDiscountToBeUpdated);
+            this.selectedCampaignItem.campaignItemDiscounts = updateDiscountToList(this.selectedCampaignItem.campaignItemDiscounts, paramDiscountToBeUpdated);
           }
           this.userActionsOnSubForms.discountsForm = UserAction.CREATE;
         }
@@ -643,11 +648,20 @@ export default {
       this.tabForms["Tags"].inputFields[0].value = this.selectedTag;
     },
     loadValuesInInputFieldsFromSelectedCampaign() {
+
+      const formatDate = (paramStringDate) => {
+        let date = new Date(paramStringDate);
+        let day = String(date.getDate()).padStart(2, '0');
+        let month = String(date.getMonth() + 1).padStart(2, '0'); //Months are zero based
+        let year = date.getFullYear();
+        return `${year}-${month}-${day}`; // Correct format is 'yyyy-mm-dd'
+      }
+
       Object.keys(this.tabForms).forEach(tabs => {
         this.tabForms[tabs].inputFields.forEach(field => {
           field.value = this.selectedCampaign[field.name];
           if (field.type === 'date') {
-            field.value = this.formatDate(this.selectedCampaign[field.name]);
+            field.value = formatDate(this.selectedCampaign[field.name]);
           } else if (['campaignClientGroups'].includes(field.name)) {
             field.value = (this.selectedCampaign[field.name] !== null) ? this.selectedCampaign[field.name][0] : null;
           } else if (['rootIndicator'].includes(field.name)) {
@@ -655,19 +669,6 @@ export default {
           }
         });
       });
-    },
-    formatDate(paramStringDate) {
-      let date = new Date(paramStringDate);
-      let day = String(date.getDate()).padStart(2, '0');
-      let month = String(date.getMonth() + 1).padStart(2, '0'); //Months are zero based
-      let year = date.getFullYear();
-
-      return `${year}-${month}-${day}`; // Correct format is 'yyyy-mm-dd'
-    },
-    updateDiscountToList(list, discountToBeUpdated) {
-      return list.map(
-          discount => discount.discountId === discountToBeUpdated.discountId ? discountToBeUpdated : discount
-      );
     }
   },
   created() {
