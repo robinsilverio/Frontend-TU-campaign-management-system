@@ -13,6 +13,7 @@
             :tab-form="this.tabForms[activeTab.mainTab]"
             :active-tab="this.activeTab.mainTab"
             @onSelectCampaignItem="onSelectCampaignItem"
+            @onSelectTag="onSelectTag"
         >
         </AdditionalItemsComponent>
         <div class="sub-tab-header" v-if="activeTab.subTab !== null">
@@ -234,7 +235,8 @@ export default {
       PERCENTAGE: 'PCT',
       PRICE: 'P',
       selectedCampaignItem: null,
-      selectedDiscount: null
+      selectedDiscount: null,
+      selectedTag: null
     }
   },
   computed: {
@@ -313,6 +315,11 @@ export default {
       this.selectedDiscount = paramDiscount;
       this.loadDiscountValuesInForm();
     },
+    onSelectTag(paramTag) {
+      this.userActionsOnSubForms.tagsForm = 'update';
+      this.selectedTag = paramTag;
+      this.loadTagValuesInForm();
+    },
     handleFormActionCampaignItem() {
       return {
         "create" : (paramCampaignItem) => {
@@ -355,6 +362,28 @@ export default {
         }
       }
     },
+    handleFormActionTag() {
+
+      const findExistingTag = (tagToBeSearched) => {
+        return this.tabForms['Tags'].values.find(tag => tag.toLowerCase() === tagToBeSearched.toLowerCase());
+      }
+      return {
+        "create": (paramTagToBeInserted) => {
+          const existingTag = findExistingTag(paramTagToBeInserted);
+          if (existingTag !== undefined) {
+            this.$toast.warning('Deze tag bestaat al.');
+          } else {
+            this.tabForms['Tags'].values.push(paramTagToBeInserted);
+          }
+        },
+        "update": (paramTagToBeUpdated) => {
+          this.tabForms['Tags'].values = this.tabForms['Tags'].values.map(
+              tag => tag === this.selectedTag ? paramTagToBeUpdated : tag
+          );
+          this.userActionsOnSubForms.tagsForm = 'create';
+        }
+      }
+    },
     addSku() {
       this.validateSkuInputField();
       if (this.hasValidationErrors()) return;
@@ -362,13 +391,6 @@ export default {
       let skuId = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].inputFields[0].value;
       skuList.push(skuId);
       this.clearInputFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].inputFields);
-    },
-    addTag() {
-      this.validateTagInputfield();
-      if (this.hasValidationErrors()) return;
-      let tag = this.tabForms['Tags'].inputFields[0].value;
-      this.tabForms['Tags'].values.push(tag);
-      this.clearInputFields(this.tabForms['Tags'].inputFields);
     },
     handleAdditionalFormAction() {
       if (this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab !== 'Discounts') {
@@ -438,7 +460,11 @@ export default {
         this.clearSkus();
       }
       else {
-        this.addTag();
+        this.validateTagInputfield();
+        if (this.hasValidationErrors()) return;
+        let tag = this.tabForms['Tags'].inputFields[0].value;
+        this.handleFormActionTag()[this.userActionsOnSubForms.tagsForm](tag);
+        this.clearInputFields(this.tabForms['Tags'].inputFields);
       }
     },
     handleFormSubmission() {
@@ -610,6 +636,9 @@ export default {
       this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[4].value = this.selectedDiscount.tuPoints;
       this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values = this.selectedDiscount.skuIds;
       this.handleDisabledStateOnDiscountSelection();
+    },
+    loadTagValuesInForm() {
+      this.tabForms["Tags"].inputFields[0].value = this.selectedTag;
     },
     loadValuesInInputFieldsFromSelectedCampaign() {
       Object.keys(this.tabForms).forEach(tabs => {

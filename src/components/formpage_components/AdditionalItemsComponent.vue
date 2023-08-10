@@ -3,7 +3,7 @@
     <p>{{ printOrderedListTitle[this.activeTab] }}</p>
     <ol v-if="this.tabForm.values.length > 0">
       <li v-for="(item, index) in this.tabForm.values" :key="index" v-if="activeTab === 'Campaign items'" @click="selectCampaignItem(item)">{{ item.promoTitle }}</li>
-      <li v-for="(item, index) in this.tabForm.values" :key="index" v-if="activeTab === 'Tags'">{{ item }}</li>
+      <li v-for="(item, index) in this.tabForm.values" :key="index" v-if="activeTab === 'Tags'" @click="selectTag(item)">{{ item }}</li>
       <li v-for="(item, index) in this.tabForm.values" :key="index" v-if="activeTab === 'Discounts'" @click="selectDiscount(item)">{{ item.skuIds.join(", ") }}</li>
     </ol>
     <p v-else style="color: red; font-weight: bold">De lijst is leeg.</p>
@@ -12,7 +12,7 @@
 <script>
 export default {
   name: "AdditionalItemsComponent",
-  emits: ['onSelectCampaignItem', 'onSelectDiscount'],
+  emits: ['onSelectCampaignItem', 'onSelectDiscount', "onSelectTag"],
   props: {
     activeTab: {
       type: String,
@@ -38,6 +38,9 @@ export default {
     },
     selectDiscount(paramDiscount) {
       this.$emit('onSelectDiscount', paramDiscount);
+    },
+    selectTag(paramTag) {
+      this.$emit('onSelectTag', paramTag);
     }
   }
 }
