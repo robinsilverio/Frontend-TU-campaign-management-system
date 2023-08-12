@@ -1,19 +1,17 @@
 import axios from "axios"
 import store from "@/store";
+import getAuthorizationToken from "@/services/auth-header-service"
 export default class CampaignService {
 
     getBaseUrl() {
         return store.getters.getBaseUrl;
-    }
-    getAuthenticationToken() {
-        return `Bearer ${JSON.parse(localStorage.getItem('user')).token}`;
     }
     retrieveCampaigns() {
         return axios
             .get(`${this.getBaseUrl()}campaign/all`, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': this.getAuthenticationToken()
+                    'Authorization': getAuthorizationToken()
                 }
             })
             .then(response => {
@@ -29,7 +27,7 @@ export default class CampaignService {
             .post(`${this.getBaseUrl()}campaign`, paramCampaign, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': this.getAuthenticationToken()
+                    'Authorization': getAuthorizationToken()
                 }
             })
             .then(response => {
@@ -45,7 +43,7 @@ export default class CampaignService {
             .put(`${this.getBaseUrl()}campaign`, paramCampaign, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': this.getAuthenticationToken()
+                    'Authorization': getAuthorizationToken()
                 }
             })
             .then(response =>  {
@@ -61,7 +59,7 @@ export default class CampaignService {
             .delete(`${this.getBaseUrl()}campaign/delete/${paramCampaign.campaignId}`, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': this.getAuthenticationToken()
+                    'Authorization': getAuthorizationToken()
                 }
             })
             .then(response => {
@@ -76,7 +74,7 @@ export default class CampaignService {
             .delete(`${this.getBaseUrl()}campaign/delete/selected-campaigns`, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': this.getAuthenticationToken()
+                    'Authorization': getAuthorizationToken()
                 },
                 data: paramSelectedCampaigns
             })
