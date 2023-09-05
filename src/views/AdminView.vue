@@ -1,8 +1,3 @@
-<script setup>
-    import NavigationBar from '../components/NavigationBar.vue';
-    import SideBar from "@/components/SideBar.vue";
-    import FormPage from "@/components/FormPage.vue";
-</script>
 <template>
     <NavigationBar></NavigationBar>
     <main class="admin-panel">
@@ -17,16 +12,27 @@
     </main>
 </template>
 <script>
+    import NavigationBar from '../components/NavigationBar.vue';
+    import SideBar from "@/components/SideBar.vue";
+    import FormPage from "@/components/FormPage.vue";
     import {UserAction} from "@/enums/userAction";
 
     export default {
         name: 'AdminPanel',
+        components: {
+          NavigationBar,
+          SideBar,
+          FormPage
+        },
         data() {
           return {
             userAction: UserAction.NONE
           }
         },
         computed: {
+          UserAction() {
+            return UserAction
+          },
           selectedCampaignForUpdate() {
             return this.$store.getters.getSelectedCampaign;
           }
