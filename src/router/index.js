@@ -38,13 +38,13 @@ router.beforeEach((to, from, next) => {
   const publicPages = ['/'];
   const authRequired = !publicPages.includes(to.path);
   const userState = store.getters.getUserState;
-  const ADMIN_ROLE = 'ROLE_SUPER_USER_E-SALES';
+  const adminRole = 'ROLE_SUPER_USER_E-SALES';
 
   if (authRequired && !userState.status.loggedIn) {
     next('/');
   } else if (userState.status.loggedIn && to.path === '/') {
     next('/admin');
-  } else if (authRequired && !userState.user.roles.includes(ADMIN_ROLE) && to.path !== '/access-denied') {
+  } else if (authRequired && !userState.user.roles.includes(adminRole) && to.path !== '/access-denied') {
     next('/access-denied');
   } else {
     next();

@@ -17,14 +17,13 @@ export default class AuthService {
             })
             .then(response => {
                 let user = { username: response.data.username, roles: response.data.roles, loggedIn: true };
-                localStorage.setItem(
-                    'user', JSON.stringify(
-                        user
-                    )
-                );
                 Cookies.set('jwtToken', response.data.token, {
-                    expires: 7, // Set the expiration time for the cookie (in days)
+                    expires: 3, // Set the expiration time for the cookie (in days)
                     secure: true, // Make it secure (HTTPS-only)
+                });
+                Cookies.set('user', JSON.stringify(user), {
+                    expires: 3,
+                    secure: true
                 });
                 return Promise.resolve(user);
             })
@@ -34,6 +33,7 @@ export default class AuthService {
     }
     
     logout() {
-      localStorage.removeItem('user');
+        Cookies.remove('jwtToken');
+        Cookies.remove('user');
     }
 }
