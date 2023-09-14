@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AdminView from '../views/AdminView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
+import AccessDenied from "@/views/AccessDenied.vue";
 import store from "@/store";
 
 const router = createRouter({
@@ -21,6 +22,11 @@ const router = createRouter({
       path: '/:pathMatch(.*)*',
       name: 'Not found',
       component: NotFoundView
+    },
+    {
+      path: '/access-denied',
+      name: 'Access denied',
+      component: AccessDenied
     }
   ]
 })
@@ -38,8 +44,8 @@ router.beforeEach((to, from, next) => {
     next('/');
   } else if (userState.status.loggedIn && to.path === '/') {
     next('/admin');
-  } else if (authRequired && !userState.user.roles.includes(ADMIN_ROLE)) {
-    console.log('Unauthorized access');
+  } else if (authRequired && !userState.user.roles.includes(ADMIN_ROLE) && to.path !== '/access-denied') {
+    next('/access-denied');
   } else {
     next();
   }
