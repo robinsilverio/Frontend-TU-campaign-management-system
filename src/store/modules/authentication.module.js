@@ -8,7 +8,14 @@ const initialState = user
 : { status: { loggedIn: false }, user: null };
 
 export const authentication = {
-    state: initialState,
+    state: {
+        userState: initialState
+    },
+    getters: {
+        getUserState(state) {
+            return state.userState
+        }
+    },
     actions: {
         login({ commit }, paramUser){
             const BASE_URL = store.getters.getBaseUrl;
@@ -30,12 +37,12 @@ export const authentication = {
     },
     mutations : {
         mutateLoginSuccess(state, user) {
-            state.status.loggedIn = true;
-            state.user = user;
+            state.userState.status.loggedIn = true;
+            state.userState.user = user;
         },
         mutateLogout(state) {
-            state.status.loggedIn = false;
-            state.user = null;
+            state.userState.status.loggedIn = false;
+            state.userState.user = null;
         },
     }
 }

@@ -16,16 +16,17 @@ export default class AuthService {
                 }
             })
             .then(response => {
+                let user = { username: response.data.username, roles: response.data.roles, loggedIn: true };
                 localStorage.setItem(
                     'user', JSON.stringify(
-                        { username: response.data.username, roles: response.data.roles, isLoggedIn: true }
+                        user
                     )
                 );
                 Cookies.set('jwtToken', response.data.token, {
                     expires: 7, // Set the expiration time for the cookie (in days)
                     secure: true, // Make it secure (HTTPS-only)
-                    sameSite: 'strict', // Set the same-site attribute for additional security
                 });
+                return Promise.resolve(user);
             })
             .catch(error => {
                 throw error;
