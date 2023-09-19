@@ -609,6 +609,21 @@ export default {
       paramInputFields.forEach((field) => {
         if (((field.value === null || field.value === '') && field.required && !field.disabled) && !optionalInputfields.includes(field.name)) {
           this.errorMessages.push(`Er ontbreekt een waarde voor de vereiste eigenschap "${field.label}"`);
+        } else {
+          if (field.type === 'date') {
+            const now = new Date();
+            const selectedDate = new Date(field.value);
+
+            // Test case 1: Start date should not be yesterday or today
+            if (field.name === 'startDate' && selectedDate < now) {
+              this.errorMessages.push(`Startdatum mag niet gisteren of vandaag zijn.`);
+            }
+
+            // Test case 2: End date should not be yesterday or today
+            if (field.name === 'endDate' && selectedDate <= now) {
+              this.errorMessages.push(`Einddatum mag niet gisteren of vandaag zijn`);
+            }
+          }
         }
       });
     },
