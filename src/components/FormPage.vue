@@ -65,6 +65,7 @@
 import AdditionalItemsComponent from "@/components/formpage_components/AdditionalItemsComponent.vue";
 import CampaignDTO from "@/models/CampaignDTO";
 import {UserAction} from "@/enums/userAction";
+import {RegEx} from "@/enums/RegEx";
 
 export default {
   name: "FormPage",
@@ -622,6 +623,21 @@ export default {
             // Test case 2: End date should not be yesterday or today
             if (field.name === 'endDate' && selectedDate <= now) {
               this.errorMessages.push(`Einddatum mag niet gisteren of vandaag zijn`);
+            }
+          } else if (field.type === 'text') {
+            const inputImageNames = [
+                'filterImgUrl',
+                'promoImgUrl',
+                'campaign-item-promo-img'
+            ];
+            if (!RegEx.TITLE.test(field.value) && !inputImageNames.includes(field.name)) {
+              this.errorMessages.push(`De waarde voor het veld ${field.label} is ongeldig. Voer alstublieft een geldige naam of titel in.`);
+            } else if (!RegEx.IMG_URL.test(field.value) && inputImageNames.includes(field.name) && field.required) {
+              this.errorMessages.push(`De waarde voor het veld ${field.label} moet een geldige afbeelding extensie hebben.`);
+            }
+          } else if (field.type === 'textarea') {
+            if (!RegEx.DESCRIPTION.test(field.value)) {
+              this.errorMessages.push(`De waarde voor het veld ${field.label} is ongeldig. Voer alstublieft een geldige beschrijving.`)
             }
           }
         }
