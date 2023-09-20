@@ -86,7 +86,7 @@ export default {
             subTabs: null,
             inputFields: [
               { type: 'text', name: 'title', label: 'Title', required: true, value: null, disabled: false },
-              { type: 'text', name: 'relativeUrl', label: 'Campaign url', required: false, value: null, disabled: false },
+              { type: 'text', name: 'relativeUrl', label: 'Campaign url', required: true, value: null, disabled: false },
               { type: 'date', name: 'startDate', label: 'Start date', required: true, value: null, disabled: false },
               { type: 'date', name: 'endDate', label: 'End date', required: true, value: null, disabled: false },
               { type: 'textarea', name: 'promoDescriptionText', label: 'Campaign Promotional description Text', required: true, value: null, disabled: false },
@@ -614,26 +614,22 @@ export default {
           if (field.type === 'date') {
             const now = new Date();
             const selectedDate = new Date(field.value);
-
-            // Test case 1: Start date should not be yesterday or today
-            if (field.name === 'startDate' && selectedDate < now) {
-              this.errorMessages.push(`Startdatum mag niet gisteren of vandaag zijn.`);
-            }
-
-            // Test case 2: End date should not be yesterday or today
-            if (field.name === 'endDate' && selectedDate <= now) {
-              this.errorMessages.push(`Einddatum mag niet gisteren of vandaag zijn`);
+            if ((field.name === 'startDate' && selectedDate <= now) || (field.name === 'endDate' && selectedDate <= now)) {
+              this.errorMessages.push(`Startdatum of einddatum mag niet gisteren of vandaag zijn.`);
             }
           } else if (field.type === 'text') {
-            const inputImageNames = [
+            const imageUrlInputFieldNames = [
                 'filterImgUrl',
                 'promoImgUrl',
                 'campaign-item-promo-img'
             ];
-            if (!RegEx.TITLE.test(field.value) && !inputImageNames.includes(field.name)) {
+            const regularUrlInputNames = ['relativeUrl', 'termsUrl',];
+            const excludedInputFieldsForValidatingNormalTextRegex = [...imageUrlInputFieldNames, ...regularUrlInputNames];
+
+            if (!RegEx.TITLE.test(field.value) && !excludedInputFieldsForValidatingNormalTextRegex.includes(field.name)) {
               this.errorMessages.push(`De waarde voor het veld ${field.label} is ongeldig. Voer alstublieft een geldige naam of titel in.`);
-            } else if (!RegEx.IMG_URL.test(field.value) && inputImageNames.includes(field.name) && field.required) {
-              this.errorMessages.push(`De waarde voor het veld ${field.label} moet een geldige afbeelding extensie hebben.`);
+            } else if (!RegEx.IMG_URL.test(field.value) && imageUrlInputFieldNames.includes(field.name) && field.required) {
+              this.errorMessages.push(`De waarde voor het veld ${field.label} moet een geldige afbeelding extensie hebben (bijvoorbeeld, .jpg).`);
             }
           } else if (field.type === 'textarea') {
             if (!RegEx.DESCRIPTION.test(field.value)) {
