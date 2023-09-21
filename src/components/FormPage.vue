@@ -86,7 +86,7 @@ export default {
             subTabs: null,
             inputFields: [
               { type: 'text', name: 'title', label: 'Title', required: true, value: null, disabled: false },
-              { type: 'text', name: 'relativeUrl', label: 'Campaign url', required: true, value: null, disabled: false },
+              { type: 'text', name: 'relativeUrl', label: 'Campaign url', required: false, value: null, disabled: false },
               { type: 'date', name: 'startDate', label: 'Start date', required: true, value: null, disabled: false },
               { type: 'date', name: 'endDate', label: 'End date', required: true, value: null, disabled: false },
               { type: 'textarea', name: 'promoDescriptionText', label: 'Campaign Promotional description Text', required: true, value: null, disabled: false },
@@ -418,8 +418,7 @@ export default {
     },
     handleAdditionalFormAction() {
       if (this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab !== 'Discounts') {
-        this.validateFields(this.tabForms['Campaign items'].subTabs['Basics'].inputFields);
-        this.validateFields(this.tabForms['Campaign items'].subTabs['Images'].inputFields);
+        this.validateTabForms({ basics: this.tabForms['Campaign items'].subTabs['Basics'], images: this.tabForms['Campaign items'].subTabs['Images'] });
         this.validateDiscounts();
 
         if (this.hasValidationErrors()) return;
@@ -441,7 +440,7 @@ export default {
       }
       else if (this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab === 'Discounts') {
 
-        this.validateFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields);
+        this.validateTabForms({ discounts: this.tabForms['Campaign items'].subTabs['Discounts'] });
         this.validateSkus();
 
         if(this.hasValidationErrors()) return;
@@ -535,7 +534,7 @@ export default {
 
     },
     formSubmit() {
-      this.validateInput();
+      this.validateTabForms(this.tabForms);
       this.validateCampaignItems();
       if (this.hasValidationErrors()) return;
 
@@ -600,44 +599,66 @@ export default {
       }
       return false;
     },
-    validateInput() {
-      Object.keys(this.tabForms).forEach((tab) => {
-        this.validateFields(this.tabForms[tab].inputFields);
+    validateTabForms(paramTabForms) {
+      const errors = [];
+      Object.keys(paramTabForms).forEach((tab) => {
+        const tabErrors = this.validateFields(paramTabForms[tab].inputFields);
+        errors.push(...tabErrors);
       });
+      this.errorMessages = errors;
     },
     validateFields(paramInputFields) {
-      let optionalInputfields = ["campaign-item-tag"];
+      const errors = [];
+      const optionalInputFields = ['campaign-item-tag'];
       paramInputFields.forEach((field) => {
-        if (((field.value === null || field.value === '') && field.required && !field.disabled) && !optionalInputfields.includes(field.name)) {
-          this.errorMessages.push(`Er ontbreekt een waarde voor de vereiste eigenschap "${field.label}"`);
+        if (field.required && !field.disabled && (field.value === null || field.value === '') && !optionalInputFields.includes(field.name)) {
+          errors.push(`Er ontbreekt een waarde voor de vereiste eigenschap "${field.label}"`);
         } else {
-          if (field.type === 'date') {
-            const now = new Date();
-            const selectedDate = new Date(field.value);
-            if ((field.name === 'startDate' && selectedDate <= now) || (field.name === 'endDate' && selectedDate <= now)) {
-              this.errorMessages.push(`Startdatum of einddatum mag niet gisteren of vandaag zijn.`);
-            }
+          if (field.type === 'date' && !this.isValidDate(field)) {
+            errors.push(`Startdatum of einddatum mag niet gisteren of vandaag zijn.`);
           } else if (field.type === 'text') {
-            const imageUrlInputFieldNames = [
-                'filterImgUrl',
-                'promoImgUrl',
-                'campaign-item-promo-img'
-            ];
-            const regularUrlInputNames = ['relativeUrl', 'termsUrl',];
-            const excludedInputFieldsForValidatingNormalTextRegex = [...imageUrlInputFieldNames, ...regularUrlInputNames];
-
-            if (!RegEx.TITLE.test(field.value) && !excludedInputFieldsForValidatingNormalTextRegex.includes(field.name)) {
-              this.errorMessages.push(`De waarde voor het veld ${field.label} is ongeldig. Voer alstublieft een geldige naam of titel in.`);
-            } else if (!RegEx.IMG_URL.test(field.value) && imageUrlInputFieldNames.includes(field.name) && field.required) {
-              this.errorMessages.push(`De waarde voor het veld ${field.label} moet een geldige afbeelding extensie hebben (bijvoorbeeld, .jpg).`);
+            const textValidationResult = this.validateText(field);
+            if (textValidationResult) {
+              errors.push(textValidationResult);
             }
           } else if (field.type === 'textarea') {
-            if (!RegEx.DESCRIPTION.test(field.value)) {
-              this.errorMessages.push(`De waarde voor het veld ${field.label} is ongeldig. Voer alstublieft een geldige beschrijving.`)
+            if (!this.isValidTextAreaValue(field)) {
+              errors.push(`De waarde voor het veld ${field.label} is ongeldig. Voer alstublieft een geldige beschrijving in.`);
             }
           }
         }
       });
+      return errors;
+    },
+    validateText(field) {
+      const imageUrlInputFieldNames = [
+        'filterImgUrl',
+        'promoImgUrl',
+        'campaign-item-promo-img',
+        'appImageUrl',
+      ];
+      const regularUrlInputNames = ['relativeUrl', 'termsUrl'];
+
+      const excludedInputFieldsForValidatingNormalTextRegex = [...imageUrlInputFieldNames, ...regularUrlInputNames];
+
+      if (!RegEx.TITLE.test(field.value) && !excludedInputFieldsForValidatingNormalTextRegex.includes(field.name)) {
+        return `De waarde voor het veld ${field.label} is ongeldig. Voer alstublieft een geldige naam of titel in.`;
+      } else if (!RegEx.IMG_URL.test(field.value) && imageUrlInputFieldNames.includes(field.name) && field.required) {
+        return `De waarde voor het veld ${field.label} moet een geldige afbeelding extensie hebben (bijvoorbeeld, .jpg).`;
+      } else if (!RegEx.REGULAR_URL.test(field.value) && regularUrlInputNames.includes(field.name)) {
+        return `De waarde voor het veld ${field.label} moet een geldige URL zijn.`;
+      }
+    },
+    isValidTextAreaValue(field) {
+      return RegEx.DESCRIPTION.test(field.value);
+    },
+    isValidDate(field) {
+      const now = new Date();
+      const selectedDate = new Date(field.value);
+      return !(
+          (field.name === 'startDate' && selectedDate <= now) ||
+          (field.name === 'endDate' && selectedDate <= now)
+      );
     },
     validateCampaignItems() {
       if (this.tabForms['Campaign items'].values.length === 0) {
