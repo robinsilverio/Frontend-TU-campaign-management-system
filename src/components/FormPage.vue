@@ -617,9 +617,11 @@ export default {
           if (field.type === 'date' && !this.isValidDate(field)) {
             errors.push(`Startdatum of einddatum mag niet gisteren of vandaag zijn.`);
           } else if (field.type === 'text') {
-            const textValidationResult = this.validateText(field);
-            if (textValidationResult) {
-              errors.push(textValidationResult);
+            if (field.required || (field.value !== null && field.value !== '')) {
+              const textValidationResult = this.validateText(field);
+              if (textValidationResult) {
+                errors.push(textValidationResult);
+              }
             }
           } else if (field.type === 'textarea') {
             if (!this.isValidTextAreaValue(field)) {
