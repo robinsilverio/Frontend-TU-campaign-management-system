@@ -184,7 +184,7 @@ export default {
                   name: 'campaign-item-discount-form-group',
                   label: 'Discount sku',
                   inputFields: [
-                    { type: 'text', name: 'campaign-item-discount-sku', required: false, value: null, disabled: false }
+                    { type: 'text', name: 'campaign-item-discount-sku', label: 'Discount sku', required: false, value: null, disabled: false }
                   ],
                   required: false,
                   values: []
@@ -614,18 +614,20 @@ export default {
         if (field.required && !field.disabled && (field.value === null || field.value === '') && !optionalInputFields.includes(field.name)) {
           errors.push(`Er ontbreekt een waarde voor de vereiste eigenschap "${field.label}"`);
         } else {
-          if (field.type === 'date' && !this.isValidDate(field)) {
-            errors.push(`Startdatum of einddatum mag niet gisteren of vandaag zijn.`);
-          } else if (field.type === 'text') {
-            if (field.required || (field.value !== null && field.value !== '')) {
-              const textValidationResult = this.validateText(field);
-              if (textValidationResult) {
-                errors.push(textValidationResult);
+          if (!optionalInputFields.includes(field.name)) {
+            if (field.type === 'date' && !this.isValidDate(field)) {
+              errors.push(`Startdatum of einddatum mag niet gisteren of vandaag zijn.`);
+            } else if (field.type === 'text') {
+              if ((field.required && !field.disabled) || (field.value !== null && field.value !== '')) {
+                const textValidationResult = this.validateText(field);
+                if (textValidationResult) {
+                  errors.push(textValidationResult);
+                }
               }
-            }
-          } else if (field.type === 'textarea') {
-            if (!this.isValidTextAreaValue(field)) {
-              errors.push(`De waarde voor het veld ${field.label} is ongeldig. Voer alstublieft een geldige beschrijving in.`);
+            } else if (field.type === 'textarea') {
+              if (!this.isValidTextAreaValue(field)) {
+                errors.push(`De waarde voor het veld ${field.label} is ongeldig. Voer alstublieft een geldige beschrijving in.`);
+              }
             }
           }
         }
@@ -633,22 +635,25 @@ export default {
       return errors;
     },
     validateText(field) {
+
       const imageUrlInputFieldNames = [
         'filterImgUrl',
         'promoImgUrl',
         'campaign-item-promo-img',
         'appImageUrl',
       ];
-      const regularUrlInputNames = ['relativeUrl', 'termsUrl'];
-
-      const excludedInputFieldsForValidatingNormalTextRegex = [...imageUrlInputFieldNames, ...regularUrlInputNames];
+      const regularUrlInputFieldNames = ['relativeUrl', 'termsUrl'];
+      const numericInputFieldNames = ['campaign-item-discount-sku', 'campaign-item-discount-price', 'campaign-item-discount-percentage'];
+      const excludedInputFieldsForValidatingNormalTextRegex = [...imageUrlInputFieldNames, ...regularUrlInputFieldNames];
 
       if (!RegEx.TITLE.test(field.value) && !excludedInputFieldsForValidatingNormalTextRegex.includes(field.name)) {
         return `De waarde voor het veld ${field.label} is ongeldig. Voer alstublieft een geldige naam of titel in.`;
       } else if (!RegEx.IMG_URL.test(field.value) && imageUrlInputFieldNames.includes(field.name) && field.required) {
         return `De waarde voor het veld ${field.label} moet een geldige afbeelding extensie hebben (bijvoorbeeld, .jpg).`;
-      } else if (!RegEx.REGULAR_URL.test(field.value) && regularUrlInputNames.includes(field.name)) {
+      } else if (!RegEx.REGULAR_URL.test(field.value) && regularUrlInputFieldNames.includes(field.name)) {
         return `De waarde voor het veld ${field.label} moet een geldige URL zijn.`;
+      } else if (!RegEx.NUMBER.test(field.value) && numericInputFieldNames.includes(field.name)) {
+        return `De waarde voor het veld ${field.label} moet numeriek zijn.`
       }
     },
     isValidTextAreaValue(field) {
@@ -681,6 +686,11 @@ export default {
       let skuInputField = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].inputFields[0];
       if (skuInputField.value === null || skuInputField.value === '') {
         this.errorMessages.push("Het invoeren van sku id is vereist.");
+      } else {
+        const errorMessage = this.validateText(skuInputField);
+        if (errorMessage) {
+          this.errorMessages.push(errorMessage);
+        }
       }
     },
     validateTagInputfield() {
