@@ -65,6 +65,7 @@
 import AdditionalItemsComponent from "@/components/formpage_components/AdditionalItemsComponent.vue";
 import CampaignDTO from "@/models/CampaignDTO";
 import {UserAction} from "@/enums/userAction";
+import {Tabs} from "@/enums/Tabs";
 import {RegEx} from "@/enums/RegEx";
 
 export default {
@@ -250,7 +251,7 @@ export default {
     },
     getInputfields() {
       let inputFields;
-      if (this.activeTab.main !== null && this.activeTab.subTab === null) {
+      if (this.isMainTabOnlySelected()) {
         inputFields = this.tabForms[this.activeTab.mainTab].inputFields;
       } else {
         inputFields = this.tabForms[this.activeTab.mainTab].subTabs[this.activeTab.subTab].inputFields;
@@ -265,9 +266,9 @@ export default {
       return (isMainTabAllowed && this.activeTab.subTab !== 'Discounts') || isSubTabAllowed;
     },
     showAdditionalActionText() {
-      if (this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab !== 'Discounts') {
+      if (this.activeTab.mainTab === Tabs.CAMPAIGN_ITEMS && this.activeTab.subTab !== Tabs.DISCOUNTS) {
         return this.userActionsOnSubForms.campaignItemsForm === UserAction.CREATE ? 'Voeg campaign item toe' : 'Campaign item bijwerken';
-      } else if (this.activeTab.mainTab === 'Tags') {
+      } else if (this.activeTab.mainTab === Tabs.TAGS) {
         return this.userActionsOnSubForms.tagsForm === UserAction.CREATE ? 'Voeg tag toe' : 'Tag bijwerken';
       } else {
         return this.userActionsOnSubForms.discountsForm === UserAction.CREATE ? 'Voeg hier een discount toe' : 'Discount bijwerken';
@@ -298,14 +299,17 @@ export default {
   methods: {
     changeTab(paramTabName) {
       this.activeTab.mainTab = paramTabName;
-      if (this.activeTab.mainTab === 'Campaign items') {
-        this.activeTab.subTab = 'Basics';
+      if (this.activeTab.mainTab === Tabs.CAMPAIGN_ITEMS) {
+        this.activeTab.subTab = Tabs.BASICS;
       } else {
         this.changeSubTab(null);
       }
     },
     changeSubTab(paramTabName) {
       this.activeTab.subTab = paramTabName;
+    },
+    isMainTabOnlySelected() {
+      return this.activeTab.mainTab !== null && this.activeTab.subTab === null;
     },
     onSelectCampaignItem(paramCampaignItem){
       this.userActionsOnSubForms.campaignItemsForm = UserAction.UPDATE;
@@ -323,20 +327,20 @@ export default {
       this.loadTagValuesInForm();
     },
     addCampaignItem(paramCampaignItemToBeInserted) {
-      this.tabForms['Campaign items'].values.push(paramCampaignItemToBeInserted);
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].values.push(paramCampaignItemToBeInserted);
     },
     updateCampaignItem(paramCampaignItemToBeUpdated) {
-      this.tabForms['Campaign items'].values = this.tabForms['Campaign items'].values.map(
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].values = this.tabForms[Tabs.CAMPAIGN_ITEMS].values.map(
           campaignItem => campaignItem.campaignItemId === paramCampaignItemToBeUpdated.campaignItemId ?
               paramCampaignItemToBeUpdated : campaignItem
       );
       this.userActionsOnSubForms.campaignItemsForm = UserAction.CREATE;
     },
     addDiscount(paramDiscountToBeInserted) {
-      this.tabForms['Campaign items'].subTabs['Discounts'].values.push(paramDiscountToBeInserted);
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values.push(paramDiscountToBeInserted);
     },
     updateDiscount(paramDiscountToBeUpdated, paramInputFieldsForDeterminingDiscountType) {
-      const existingDiscount = this.tabForms['Campaign items'].subTabs['Discounts'].values.find(
+      const existingDiscount = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values.find(
           discount => discount.discountId === paramDiscountToBeUpdated.discountId
       );
       const updateDiscountToList = (list, discountToBeUpdated) => {
@@ -355,24 +359,24 @@ export default {
           this.$toast.warning('You cannot change the discount type.');
           return;
         }
-        this.tabForms['Campaign items'].subTabs['Discounts'].values = updateDiscountToList(this.tabForms['Campaign items'].subTabs['Discounts'].values, paramDiscountToBeUpdated);
+        this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values = updateDiscountToList(this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values, paramDiscountToBeUpdated);
         this.selectedCampaignItem.campaignItemDiscounts = updateDiscountToList(this.selectedCampaignItem.campaignItemDiscounts, paramDiscountToBeUpdated);
       }
       this.userActionsOnSubForms.discountsForm = UserAction.CREATE;
     },
     addTag(paramTagToBeInserted) {
       const findExistingTag = (tagToBeSearched) => {
-        return this.tabForms['Tags'].values.find(tag => tag.toLowerCase() === tagToBeSearched.toLowerCase());
+        return this.tabForms[Tabs.TAGS].values.find(tag => tag.toLowerCase() === tagToBeSearched.toLowerCase());
       }
       const existingTag = findExistingTag(paramTagToBeInserted);
       if (existingTag !== undefined) {
         this.$toast.warning('Deze tag bestaat al.');
       } else {
-        this.tabForms['Tags'].values.push(paramTagToBeInserted);
+        this.tabForms[Tabs.TAGS].values.push(paramTagToBeInserted);
       }
     },
     updateTag(paramTagToBeUpdated) {
-      this.tabForms['Tags'].values = this.tabForms['Tags'].values.map(
+      this.tabForms[Tabs.TAGS].values = this.tabForms[Tabs.TAGS].values.map(
           tag => tag === this.selectedTag ? paramTagToBeUpdated : tag
       );
       this.userActionsOnSubForms.tagsForm = UserAction.CREATE;
@@ -411,43 +415,44 @@ export default {
     addSku() {
       this.validateSkuInputField();
       if (this.hasValidationErrors()) return;
-      let skuList = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values;
-      let skuId = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].inputFields[0].value;
+      let skuList = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].values;
+      let skuId = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].inputFields[0].value;
       skuList.push(skuId);
-      this.clearInputFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].inputFields);
+      this.clearInputFields(this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].inputFields);
     },
     handleAdditionalFormAction() {
-      if (this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab !== 'Discounts') {
-        this.validateTabForms({ basics: this.tabForms['Campaign items'].subTabs['Basics'], images: this.tabForms['Campaign items'].subTabs['Images'] });
+      if (this.activeTab.mainTab === Tabs.CAMPAIGN_ITEMS && this.activeTab.subTab !== Tabs.DISCOUNTS) {
+        this.validateTabForms({ basics: this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.BASICS], images: this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.IMAGES] });
         this.validateDiscounts();
 
         if (this.hasValidationErrors()) return;
         let campaignItem = {
           campaignItemId: (this.selectedCampaignItem !== null) ? this.selectedCampaignItem.campaignItemId : null,
-          promoTitle: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[0].value,
-          promoText: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[1].value,
-          promoImgUrl: this.tabForms['Campaign items'].subTabs['Images'].inputFields[0].value,
-          promoImgAltText: this.tabForms['Campaign items'].subTabs['Images'].inputFields[1].value,
-          weight: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[2].value,
-          teaser: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[3].value,
-          extraText: this.tabForms['Campaign items'].subTabs['Basics'].inputFields[4].value,
-          campaignItemDiscounts: this.tabForms['Campaign items'].subTabs['Discounts'].values
+          promoTitle: this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.BASICS].inputFields[0].value,
+          promoText: this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.BASICS].inputFields[1].value,
+          promoImgUrl: this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.IMAGES].inputFields[0].value,
+          promoImgAltText: this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.IMAGES].inputFields[1].value,
+          weight: this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.BASICS].inputFields[2].value,
+          teaser: this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.BASICS].inputFields[3].value,
+          extraText: this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.BASICS].inputFields[4].value,
+          campaignItemDiscounts: this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values
         }
+        console.log(campaignItem);
         this.handleFormActionCampaignItem()[this.userActionsOnSubForms.campaignItemsForm](campaignItem);
-        this.clearInputFields(this.tabForms['Campaign items'].subTabs['Basics'].inputFields);
-        this.clearInputFields(this.tabForms['Campaign items'].subTabs['Images'].inputFields);
+        this.clearInputFields(this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.BASICS].inputFields);
+        this.clearInputFields(this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.IMAGES].inputFields);
         this.clearDiscounts();
       }
-      else if (this.activeTab.mainTab === 'Campaign items' && this.activeTab.subTab === 'Discounts') {
+      else if (this.activeTab.mainTab === Tabs.CAMPAIGN_ITEMS && this.activeTab.subTab === Tabs.DISCOUNTS) {
 
-        this.validateTabForms({ discounts: this.tabForms['Campaign items'].subTabs['Discounts'] });
+        this.validateTabForms({ discounts: this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS] });
         this.validateSkus();
 
         if(this.hasValidationErrors()) return;
 
-        let discountTypesRadioGroup = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[1];
-        let discountPriceInputField = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[2];
-        let discountPercentageInputField = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[3];
+        let discountTypesRadioGroup = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[1];
+        let discountPriceInputField = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[2];
+        let discountPercentageInputField = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[3];
 
         let inputFieldsForDeterminingDiscountType = {
           "radioGroupDiscountType": discountTypesRadioGroup,
@@ -457,8 +462,8 @@ export default {
 
         let discountObject = {
           discountId: (this.selectedDiscount !== null) ? this.selectedDiscount.discountId : null,
-          tuPoints: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[4].value,
-          skuIds: this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values,
+          tuPoints: this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[4].value,
+          skuIds: this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].values,
           discountPrice: null,
           discountPercentage: null
         }
@@ -479,15 +484,15 @@ export default {
         }
 
         this.handleFormActionDiscount()[this.userActionsOnSubForms.discountsForm](discountObject, inputFieldsForDeterminingDiscountType);
-        this.clearInputFields(this.tabForms['Campaign items'].subTabs['Discounts'].inputFields);
+        this.clearInputFields(this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields);
         this.clearSkus();
       }
       else {
         this.validateTagInputfield();
         if (this.hasValidationErrors()) return;
-        let tag = this.tabForms['Tags'].inputFields[0].value;
+        let tag = this.tabForms[Tabs.TAGS].inputFields[0].value;
         this.handleFormActionTag()[this.userActionsOnSubForms.tagsForm](tag);
-        this.clearInputFields(this.tabForms['Tags'].inputFields);
+        this.clearInputFields(this.tabForms[Tabs.TAGS].inputFields);
       }
     },
     handleFormSubmission() {
@@ -525,9 +530,9 @@ export default {
     },
     handleDisabledStateOnDiscountSelection() {
 
-      let discountTypesRadioGroup = this.tabForms["Campaign items"].subTabs["Discounts"].inputFields[1];
-      let discountPriceInputInputField = this.tabForms["Campaign items"].subTabs["Discounts"].inputFields[2];
-      let discountPercentageInputField = this.tabForms["Campaign items"].subTabs["Discounts"].inputFields[3];
+      let discountTypesRadioGroup = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[1];
+      let discountPriceInputInputField = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[2];
+      let discountPercentageInputField = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[3];
 
       discountPriceInputInputField.disabled = discountTypesRadioGroup.value === this.PERCENTAGE;
       discountPercentageInputField.disabled = discountTypesRadioGroup.value === this.PRICE;
@@ -541,29 +546,29 @@ export default {
       let campaign = new CampaignDTO(
           (this.selectedCampaign !== null) ? this.selectedCampaign.campaignId : null,
           null,
-          this.tabForms["Basics"].inputFields[0].value,
-          this.tabForms["Basics"].inputFields[1].value,
-          this.tabForms["Basics"].inputFields[2].value,
-          this.tabForms["Basics"].inputFields[3].value,
+          this.tabForms[Tabs.BASICS].inputFields[0].value,
+          this.tabForms[Tabs.BASICS].inputFields[1].value,
+          this.tabForms[Tabs.BASICS].inputFields[2].value,
+          this.tabForms[Tabs.BASICS].inputFields[3].value,
           '9001',
-          this.tabForms["Basics"].inputFields[4].value,
-          this.tabForms["Basics"].inputFields[5].value,
-          this.tabForms["Basics"].inputFields[6].value,
-          this.tabForms["Basics"].inputFields[7].value,
-          [this.tabForms['Advanced'].inputFields[0].value],
-          this.tabForms['Tags'].values,
-          this.tabForms['Advanced'].inputFields[1].value,
-          this.tabForms['Images'].inputFields[0].value,
-          this.tabForms['Images'].inputFields[1].value,
-          this.tabForms['Images'].inputFields[2].value,
-          this.tabForms['Images'].inputFields[3].value,
+          this.tabForms[Tabs.BASICS].inputFields[4].value,
+          this.tabForms[Tabs.BASICS].inputFields[5].value,
+          this.tabForms[Tabs.BASICS].inputFields[6].value,
+          this.tabForms[Tabs.BASICS].inputFields[7].value,
+          [this.tabForms[Tabs.ADVANCED].inputFields[0].value],
+          this.tabForms[Tabs.TAGS].values,
+          this.tabForms[Tabs.ADVANCED].inputFields[1].value,
+          this.tabForms[Tabs.IMAGES].inputFields[0].value,
+          this.tabForms[Tabs.IMAGES].inputFields[1].value,
+          this.tabForms[Tabs.IMAGES].inputFields[2].value,
+          this.tabForms[Tabs.IMAGES].inputFields[3].value,
           null,
           null,
           null,
           null,
           null,
-          this.tabForms["Basics"].inputFields[1].value,
-          this.tabForms["Campaign items"].values,
+          this.tabForms[Tabs.BASICS].inputFields[1].value,
+          this.tabForms[Tabs.CAMPAIGN_ITEMS].values,
       );
       this.handleFormSubmission()[this.userAction](campaign);
       this.clearInputFieldsOfMainTabs();
@@ -580,16 +585,16 @@ export default {
       paramInputfields.forEach(inputField => inputField.value = '');
     },
     clearSkus() {
-      this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values = [];
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].values = [];
     },
     clearDiscounts() {
-      this.tabForms['Campaign items'].subTabs['Discounts'].values = [];
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values = [];
     },
     clearCampaignItems() {
-      this.tabForms['Campaign items'].values = [];
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].values = [];
     },
     clearTags() {
-      this.tabForms['Tags'].values = [];
+      this.tabForms[Tabs.TAGS].values = [];
     },
     hasValidationErrors() {
       if (this.errorMessages.length > 0) {
@@ -668,22 +673,22 @@ export default {
       );
     },
     validateCampaignItems() {
-      if (this.tabForms['Campaign items'].values.length === 0) {
+      if (this.tabForms[Tabs.CAMPAIGN_ITEMS].values.length === 0) {
         this.errorMessages.push("Het is vereist om een campaign item toe te voegen");
       }
     },
     validateDiscounts() {
-      if (this.tabForms['Campaign items'].subTabs['Discounts'].values.length === 0) {
+      if (this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values.length === 0) {
         this.errorMessages.push("Het is vereist om een korting aan een campaign item toe te passen.");
       }
     },
     validateSkus() {
-     if (this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values.length === 0) {
+     if (this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].values.length === 0) {
        this.errorMessages.push("Het is vereist om een of meerdere sku's toe te voegen aan een discount.");
      }
     },
     validateSkuInputField() {
-      let skuInputField = this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].inputFields[0];
+      let skuInputField = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].inputFields[0];
       if (skuInputField.value === null || skuInputField.value === '') {
         this.errorMessages.push("Het invoeren van sku id is vereist.");
       } else {
@@ -694,35 +699,35 @@ export default {
       }
     },
     validateTagInputfield() {
-      let tagInputField = this.tabForms['Tags'].inputFields[0];
+      let tagInputField = this.tabForms[Tabs.TAGS].inputFields[0];
       if (tagInputField.value === null || tagInputField.value === undefined || tagInputField.value === '') {
         this.errorMessages.push("Naam van de tag is vereist.");
       }
     },
     loadCampaignItemsAndTags() {
-      this.tabForms['Campaign items'].values = this.selectedCampaign.campaignItems;
-      this.tabForms['Tags'].values = this.selectedCampaign.campaignTags;
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].values = this.selectedCampaign.campaignItems;
+      this.tabForms[Tabs.TAGS].values = this.selectedCampaign.campaignTags;
     },
     loadCampaignItemValuesInForm() {
-      this.tabForms['Campaign items'].subTabs['Basics'].inputFields[0].value = this.selectedCampaignItem.promoTitle;
-      this.tabForms['Campaign items'].subTabs['Basics'].inputFields[1].value = this.selectedCampaignItem.promoText;
-      this.tabForms['Campaign items'].subTabs['Images'].inputFields[0].value = this.selectedCampaignItem.promoImgUrl;
-      this.tabForms['Campaign items'].subTabs['Images'].inputFields[1].value = this.selectedCampaignItem.promoImgAltText;
-      this.tabForms['Campaign items'].subTabs['Basics'].inputFields[2].value = this.selectedCampaignItem.weight;
-      this.tabForms['Campaign items'].subTabs['Basics'].inputFields[3].value = this.selectedCampaignItem.teaser;
-      this.tabForms['Campaign items'].subTabs['Basics'].inputFields[4].value = this.selectedCampaignItem.expect;
-      this.tabForms['Campaign items'].subTabs['Discounts'].values = this.selectedCampaignItem.campaignItemDiscounts
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.BASICS].inputFields[0].value = this.selectedCampaignItem.promoTitle;
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.BASICS].inputFields[1].value = this.selectedCampaignItem.promoText;
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.IMAGES].inputFields[0].value = this.selectedCampaignItem.promoImgUrl;
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.IMAGES].inputFields[1].value = this.selectedCampaignItem.promoImgAltText;
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.BASICS].inputFields[2].value = this.selectedCampaignItem.weight;
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.BASICS].inputFields[3].value = this.selectedCampaignItem.teaser;
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.BASICS].inputFields[4].value = this.selectedCampaignItem.extraText;
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values = this.selectedCampaignItem.campaignItemDiscounts
     },
     loadDiscountValuesInForm() {
-      this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[1].value = (this.selectedDiscount.discountPrice !== null) ? this.PRICE : this.PERCENTAGE;
-      this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[2].value = (this.selectedDiscount.discountPrice !== null) ? this.selectedDiscount.discountPrice.price : null;
-      this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[3].value = (this.selectedDiscount.discountPercentage !== null) ? this.selectedDiscount.discountPercentage.percentage : null;
-      this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[4].value = this.selectedDiscount.tuPoints;
-      this.tabForms['Campaign items'].subTabs['Discounts'].inputFields[0].values = this.selectedDiscount.skuIds;
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[1].value = (this.selectedDiscount.discountPrice !== null) ? this.PRICE : this.PERCENTAGE;
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[2].value = (this.selectedDiscount.discountPrice !== null) ? this.selectedDiscount.discountPrice.price : null;
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[3].value = (this.selectedDiscount.discountPercentage !== null) ? this.selectedDiscount.discountPercentage.percentage : null;
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[4].value = this.selectedDiscount.tuPoints;
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].values = this.selectedDiscount.skuIds;
       this.handleDisabledStateOnDiscountSelection();
     },
     loadTagValuesInForm() {
-      this.tabForms["Tags"].inputFields[0].value = this.selectedTag;
+      this.tabForms[Tabs.TAGS].inputFields[0].value = this.selectedTag;
     },
     loadValuesInInputFieldsFromSelectedCampaign() {
 
