@@ -390,10 +390,10 @@ export default {
       this.userActionsOnSubForms.discountsForm = UserAction.CREATE;
     },
     addTag(paramTagToBeInserted) {
-      const findExistingTag = (tagToBeSearched) => {
-        return this.tabForms[Tabs.TAGS].values.find(tag => tag.toLowerCase() === tagToBeSearched.toLowerCase());
-      }
-      const existingTag = findExistingTag(paramTagToBeInserted);
+      const existingTag = this.listUtils.findItemOfList(
+          this.tabForms[Tabs.TAGS].values,
+          tag => tag.toLowerCase() === paramTagToBeInserted.toLowerCase());
+
       if (existingTag !== undefined) {
         this.$toast.warning('Deze tag bestaat al.');
       } else {
@@ -401,7 +401,8 @@ export default {
       }
     },
     updateTag(paramTagToBeUpdated) {
-      this.tabForms[Tabs.TAGS].values = this.tabForms[Tabs.TAGS].values.map(
+      this.tabForms[Tabs.TAGS].values = this.listUtils.updateItemToList(
+          this.tabForms[Tabs.TAGS].values,
           tag => tag === this.selectedTag ? paramTagToBeUpdated : tag
       );
       this.userActionsOnSubForms.tagsForm = UserAction.CREATE;
