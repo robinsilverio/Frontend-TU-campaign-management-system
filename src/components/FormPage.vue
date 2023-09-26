@@ -65,9 +65,9 @@
 import AdditionalItemsComponent from "@/components/formpage_components/AdditionalItemsComponent.vue";
 import CampaignDTO from "@/models/CampaignDTO";
 import {UserAction} from "@/enums/userAction";
-import {Tabs} from "@/enums/Tabs";
-import {RegEx} from "@/enums/RegEx";
-import {InputType} from "@/enums/InputType";
+import {Tabs} from "@/enums/tabs";
+import {RegEx} from "@/enums/regEx";
+import {InputType} from "@/enums/inputType";
 import {ListUtils} from "@/utils/list-utils";
 
 export default {
