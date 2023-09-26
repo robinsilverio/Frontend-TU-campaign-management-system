@@ -350,22 +350,23 @@ export default {
       this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values.push(paramDiscountToBeInserted);
     },
     updateDiscount(paramDiscountToBeUpdated, paramInputFieldsForDeterminingDiscountType) {
-      let existingDiscount = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values.find(
+
+      const findItemOfList = (paramList, paramCondition) => {
+        return paramList.find(paramCondition);
+      };
+      const updateItemToList = (paramList, paramCondition) => {
+        return paramList.map(paramCondition);
+      }
+
+      let existingDiscount = findItemOfList(
+          this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values,
           discount => discount.discountId === paramDiscountToBeUpdated.discountId
       );
-      let existingCampaignItem = this.tabForms[Tabs.CAMPAIGN_ITEMS].values.find(
+      let existingCampaignItem = findItemOfList(
+          this.tabForms[Tabs.CAMPAIGN_ITEMS].values,
           campaignItem => campaignItem.campaignItemId === this.selectedCampaignItem.campaignItemId
       );
-      const updateDiscountList = (paramDiscountToBeUpdated) => {
-        return this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values.map(
-            discount => discount.discountId === paramDiscountToBeUpdated.discountId ? paramDiscountToBeUpdated : discount
-        );
-      };
-      const updateCampaignItemsList = (paramCampaignItemToBeUpdated) => {
-        return this.tabForms[Tabs.CAMPAIGN_ITEMS].values.map(
-            campaignItem => campaignItem.campaignItemId === paramCampaignItemToBeUpdated.campaignItemId ? paramCampaignItemToBeUpdated : campaignItem
-        );
-      };
+
       const isCurrentTypePrice = existingDiscount.discountPrice != null;
       const isCurrentTypePercentage = existingDiscount.discountPercentage != null;
       const isUpdatingToPrice = paramInputFieldsForDeterminingDiscountType['radioGroupDiscountType'].value === this.PRICE;
@@ -376,11 +377,20 @@ export default {
         return;
       }
       if (existingDiscount.discountId !== null && existingCampaignItem !== undefined) {
-        this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values = updateDiscountList(paramDiscountToBeUpdated);
+        this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values = updateItemToList(
+            this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values,
+            discount => discount.discountId === paramDiscountToBeUpdated.discountId ? paramDiscountToBeUpdated : discount
+        );
         existingCampaignItem.campaignItemDiscounts = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values;
-        this.tabForms[Tabs.CAMPAIGN_ITEMS].values = updateCampaignItemsList(existingCampaignItem);
+        this.tabForms[Tabs.CAMPAIGN_ITEMS].values = updateItemToList(
+            this.tabForms[Tabs.CAMPAIGN_ITEMS].values,
+            campaignItem => campaignItem.campaignItemId === existingCampaignItem.campaignItemId ? existingCampaignItem : campaignItem
+        );
       } else {
-        this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values = updateDiscountList(paramDiscountToBeUpdated);
+        this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values = updateItemToList(
+            this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values,
+            discount => discount.discountId === paramDiscountToBeUpdated.discountId ? paramDiscountToBeUpdated : discount
+        );
       }
       this.userActionsOnSubForms.discountsForm = UserAction.CREATE;
     },
