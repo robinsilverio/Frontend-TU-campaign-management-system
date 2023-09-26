@@ -68,6 +68,7 @@ import {UserAction} from "@/enums/userAction";
 import {Tabs} from "@/enums/Tabs";
 import {RegEx} from "@/enums/RegEx";
 import {InputType} from "@/enums/InputType";
+import {ListUtils} from "@/utils/list-utils";
 
 export default {
   name: "FormPage",
@@ -240,7 +241,8 @@ export default {
       PRICE: 'P',
       selectedCampaignItem: null,
       selectedDiscount: null,
-      selectedTag: null
+      selectedTag: null,
+      listUtils: new ListUtils()
     }
   },
   computed: {
@@ -351,21 +353,14 @@ export default {
     },
     updateDiscount(paramDiscountToBeUpdated, paramInputFieldsForDeterminingDiscountType) {
 
-      const findItemOfList = (paramList, paramCondition) => {
-        return paramList.find(paramCondition);
-      };
-      const updateItemToList = (paramList, paramCondition) => {
-        return paramList.map(paramCondition);
-      }
-
-      let existingDiscount = findItemOfList(
+      let existingDiscount = this.listUtils.findItemOfList(
           this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values,
           discount => discount.discountId === paramDiscountToBeUpdated.discountId
       );
-      let existingCampaignItem = findItemOfList(
+      let existingCampaignItem = (this.selectedCampaignItem !== null) ? this.listUtils.findItemOfList(
           this.tabForms[Tabs.CAMPAIGN_ITEMS].values,
           campaignItem => campaignItem.campaignItemId === this.selectedCampaignItem.campaignItemId
-      );
+      ) : undefined;
 
       const isCurrentTypePrice = existingDiscount.discountPrice != null;
       const isCurrentTypePercentage = existingDiscount.discountPercentage != null;
@@ -377,17 +372,17 @@ export default {
         return;
       }
       if (existingDiscount.discountId !== null && existingCampaignItem !== undefined) {
-        this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values = updateItemToList(
+        this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values = this.listUtils.updateItemToList(
             this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values,
             discount => discount.discountId === paramDiscountToBeUpdated.discountId ? paramDiscountToBeUpdated : discount
         );
         existingCampaignItem.campaignItemDiscounts = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values;
-        this.tabForms[Tabs.CAMPAIGN_ITEMS].values = updateItemToList(
+        this.tabForms[Tabs.CAMPAIGN_ITEMS].values = this.listUtils.updateItemToList(
             this.tabForms[Tabs.CAMPAIGN_ITEMS].values,
             campaignItem => campaignItem.campaignItemId === existingCampaignItem.campaignItemId ? existingCampaignItem : campaignItem
         );
       } else {
-        this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values = updateItemToList(
+        this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values = this.listUtils.updateItemToList(
             this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values,
             discount => discount.discountId === paramDiscountToBeUpdated.discountId ? paramDiscountToBeUpdated : discount
         );
