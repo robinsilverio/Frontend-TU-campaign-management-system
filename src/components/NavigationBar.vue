@@ -7,14 +7,21 @@
             <h1>Admin panel campaign management tool</h1>
         </div>
         <div class="wrapper">
-            <p>Welkom Robin</p>
+            <p>Welkom {{ this.displayUsername }}</p>
             <a class="logout-button" @click="logout">Logout</a>
         </div>
     </header>
 </template>
 <script>
+import store from "@/store";
+
 export default {
     name: 'NavigationBar',
+    computed: {
+      displayUsername() {
+        return store.getters.getUserState.user.username;
+      }
+    },
     methods: {
         logout() {
             this.$store.dispatch('logout');
