@@ -19,7 +19,8 @@ export default {
     name: 'NavigationBar',
     computed: {
       displayUsername() {
-        return store.getters.getUserState.user.username;
+        return (store.getters.getUserState.user !== null) ?
+            store.getters.getUserState.user.username : '';
       }
     },
     methods: {
