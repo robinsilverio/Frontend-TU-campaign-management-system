@@ -4,7 +4,7 @@ import {campaigns} from "@/store/modules/campaigns.module";
 
 export default createStore({
     state: {
-        BASE_URL: 'http://localhost:8080/api/'
+        BASE_URL: process.env.VUE_APP_ROOT_API
     },
     getters: {
         getBaseUrl: (state) => state.BASE_URL
