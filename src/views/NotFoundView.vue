@@ -2,7 +2,6 @@
     import NavigationBar from '../components/NavigationBar.vue';
 </script>
 <template>
-    <NavigationBar></NavigationBar>
     <main class="not-found">
         <h1>404 - page not found</h1>
     </main>
