@@ -10,6 +10,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      alias: '/home',
       name: 'home',
       component: HomeView
     },
@@ -35,14 +36,14 @@ export default router
 
 // This is for handling unauthorized access.
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/'];
+  const publicPages = ['/', '/home'];
   const authRequired = !publicPages.includes(to.path);
   const userState = store.getters.getUserState;
   const adminRole = 'ROLE_SUPER_USER_E-SALES';
 
   if (authRequired && !userState.status.loggedIn) {
     next('/');
-  } else if (userState.status.loggedIn && to.path === '/') {
+  } else if (userState.status.loggedIn && publicPages.includes(to.path)) {
     next('/admin');
   } else if (authRequired && !userState.user.roles.includes(adminRole) && to.path !== '/access-denied') {
     next('/access-denied');

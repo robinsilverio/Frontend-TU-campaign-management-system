@@ -60,7 +60,10 @@
               this.$router.push("/admin");
             },
             error => {
-              this.$toast.error(error.response.data.message);
+              let errorMessage = error.code !== 'ERR_NETWORK' ?
+                  "De ingevoerde gebruikersnaam of het ingevoerde wachtwoord is ongeldig.":
+                  "Er is iets fout gegaan met de server. Probeer later opnieuw.";
+              this.$toast.error(errorMessage);
             }
           );
         }      
