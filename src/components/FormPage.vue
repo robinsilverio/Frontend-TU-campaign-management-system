@@ -36,7 +36,18 @@
               <div :class="{ 'campaign-item-discount-sku-button': true }" @click="addSku()">
                 <p>Voeg sku toe.</p>
               </div>
-              <p>Toegevoegde sku's: {{ tabForm.values.join(', ') }}</p>
+              <p>
+                Toegevoegde sku's:
+                <span style="margin-right: 5px" v-for="(sku, index) in tabForm.values">
+                  {{ sku }}
+                  <img
+                      src="../assets/images/icons/close.png"
+                      alt="remove"
+                      style="position: relative; top: 1px;"
+                      @click="removeSku(sku)"
+                  />
+                </span>
+              </p>
             </div>
             <input :type="tabForm.type" :name="tabForm.name" v-model="tabForm.value" :value="tabForm.value" :disabled="tabForm.disabled" v-if="tabForm.type !== InputType.TEXT_AREA && tabForm.type !== 'selectbox' && tabForm.type !== 'radiogroup' && tabForm.type !== 'formGroup'" />
             <div class="radio-wrapper" v-if="tabForm.type === InputType.RADIO_GROUP">
@@ -446,6 +457,12 @@ export default {
       skuList.push(skuId);
       this.clearInputFields(this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].inputFields);
     },
+    removeSku(paramSku) {
+      let skuList = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].values;
+      let indexOfSku = skuList.indexOf(paramSku);
+      skuList.splice(indexOfSku, 1);
+    }
+    ,
     hasUserVisitedCampaignItemsForm() {
       return this.activeTab.mainTab === Tabs.CAMPAIGN_ITEMS && this.activeTab.subTab !== Tabs.DISCOUNTS;
     },
