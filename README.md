@@ -115,7 +115,7 @@ Command for creating an docker image:
 ```bash
 docker build -t tu-campaign-frontend:0.0.1-SNAPSHOT .
 ```
-#### Step 4 - Issue command docker compose to start deployment and access the website by url http://localhost:5173
+#### Step 4 - Issue command docker compose to start deployment and access the website by url http://localhost:5173/campaign-management-frontend
 Command: 
 ```bash
 docker-compose -f <path to compose yml-file> up -d
