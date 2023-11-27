@@ -1,14 +1,14 @@
 # Frontend for the administration tool for creating and managing campaigns/price-promotions.
 
-## Recommended IDE Setup
+## 1. Recommended IDE Setup
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
 
-## Customize configuration
+## 2. Customize configuration
 
 See [Vite Configuration Reference](https://vitejs.dev/config/).
 
-## Project Setup
+## 3. Project Setup
 
 ```sh
 npm install
@@ -48,21 +48,21 @@ npm run build
 npm run test:e2e
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### 3.7. Lint with [ESLint](https://eslint.org/)
 
 ```sh
 npm run lint
 ```
 
-# Local deployment by using docker
+## 4. Local deployment by using docker
 If you want to deploy the application locally using a docker container, you can use docker commands to perform that.
 Keep in mind that it is required to install docker engine.
 Link to docker installation: https://docs.docker.com/engine/install/
 
-## Steps to reproduce
+### Steps to reproduce
 Below are the steps for ensuring the app deployment:
 
-### Step 1 - Ensure that a Dockerfile and compose file are stored in the project structure.
+#### Step 1 - Ensure that a Dockerfile and compose file are stored in the project structure.
 For now it is not needed, but if there are absence of these files, you must add these.
 Dockerfile:
 ```
@@ -105,9 +105,9 @@ services:
       - "5173:5173"
     restart: always
 ```
-### Step 2 - Open terminal and navigate to the project.
+#### Step 2 - Open terminal and navigate to the project.
 Use command ```cd <path to the project>```
-### Step 3 - Create a docker image.
+#### Step 3 - Create a docker image.
 Issue command to create a docker-image. Remember to use the name of the image that is
 declared in the compose file.
 
@@ -115,12 +115,11 @@ Command for creating an docker image:
 ```bash
 docker build -t tu-campaign-frontend:0.0.1-SNAPSHOT .
 ```
-### Step 4 - Issue command docker compose to start deployment.
+#### Step 4 - Issue command docker compose to start deployment and access the website by url http://localhost:5173
 Command: 
 ```bash
 docker-compose -f <path to compose yml-file> up -d
 ```
-Step 5 - Access the website by url http://localhost:5173
 
 If you want to stop the deployment locally, then issue this command to stop it.
 ```
