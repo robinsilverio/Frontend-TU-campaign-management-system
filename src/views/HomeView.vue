@@ -12,9 +12,6 @@
       </div>
       <div class="login-screen-body">
         <form name="login" @submit.prevent="login">
-          <div class="errorMessageContainer" v-if="this.errors.length > 0">
-              <p v-for="(error, index) in this.errors" :key="index"> {{ error }}</p>
-          </div>
           <div class="form-inputs">
             <div class="form-control">
               <label for="username">Username: </label>
@@ -49,7 +46,7 @@
       login() {
 
         if (this.loginUsername === "" && this.loginPassword === "") {
-          this.errors.push("Het inlogveld is leeg");
+          this.$toast.error("De inlogvelden zijn leeg");
         } else {
           this.authUser.username = this.loginUsername;
           this.authUser.password = this.loginPassword;
