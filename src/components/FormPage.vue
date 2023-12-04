@@ -12,8 +12,10 @@
             v-if="activeTab.mainTab === Tabs.CAMPAIGN_ITEMS || activeTab.mainTab === Tabs.TAGS"
             :tab-form="this.tabForms[activeTab.mainTab]"
             :active-tab="this.activeTab.mainTab"
-            @onSelectCampaignItem="onSelectCampaignItem"
-            @onSelectTag="onSelectTag"
+            @onSelectCampaignItem="selectCampaignItem"
+            @onSelectTag="selectTag"
+            @onRemoveCampaignItem="removeCampaignItem"
+            @onRemoveTag="removeTag"
         >
         </AdditionalItemsComponent>
         <div class="sub-tab-header" v-if="activeTab.subTab !== null">
@@ -26,7 +28,8 @@
               v-if="activeTab.mainTab === Tabs.CAMPAIGN_ITEMS && activeTab.subTab === Tabs.DISCOUNTS"
               :tab-form="this.tabForms[activeTab.mainTab].subTabs[activeTab.subTab]"
               :active-tab="this.activeTab.subTab"
-              @onSelectDiscount="onSelectDiscount"
+              @onSelectDiscount="selectDiscount"
+              @onRemoveDiscount="removeDiscount"
           >
           </AdditionalItemsComponent>
           <div :class="'form-control input-' + tabForm.name" v-for="(tabForm, index) in this.getInputfields" :key="index">
@@ -179,7 +182,7 @@ export default {
                     "XXL"
                   ],
                   required: true,
-                  value: 'M'
+                  value: null
                 },
                 { type: InputType.TEXT, name: 'teaser', label: 'Teaser', required: false, value: null, disabled: false },
                 { type: InputType.TEXT, name: 'extra-tekst', label: 'Tekst', required: false, value: null, disabled: false }
@@ -334,17 +337,17 @@ export default {
     isMainTabOnlySelected() {
       return this.activeTab.mainTab !== null && this.activeTab.subTab === null;
     },
-    onSelectCampaignItem(paramCampaignItem){
+    selectCampaignItem(paramCampaignItem){
       this.userActionsOnSubForms.campaignItemsForm = UserAction.UPDATE;
       this.selectedCampaignItem = paramCampaignItem;
       this.loadCampaignItemValuesInForm();
     },
-    onSelectDiscount(paramDiscount){
+    selectDiscount(paramDiscount){
       this.userActionsOnSubForms.discountsForm = UserAction.UPDATE
       this.selectedDiscount = paramDiscount;
       this.loadDiscountValuesInForm();
     },
-    onSelectTag(paramTag) {
+    selectTag(paramTag) {
       this.userActionsOnSubForms.tagsForm = UserAction.UPDATE;
       this.selectedTag = paramTag;
       this.loadTagValuesInForm();
@@ -358,6 +361,13 @@ export default {
               paramCampaignItemToBeUpdated : campaignItem
       );
       this.userActionsOnSubForms.campaignItemsForm = UserAction.CREATE;
+    },
+    removeCampaignItem(paramCampaignItem) {
+      this.userActionsOnSubForms.campaignItemsForm = UserAction.CREATE;
+      let indexOfToBeDeletedCampaignItem = this.tabForms[Tabs.CAMPAIGN_ITEMS].values.indexOf(paramCampaignItem);
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].values.splice(indexOfToBeDeletedCampaignItem, 1);
+      this.clearInputFields(this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.BASICS].inputFields);
+      this.clearInputFields(this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.IMAGES].inputFields);
     },
     addDiscount(paramDiscountToBeInserted) {
       this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values.push(paramDiscountToBeInserted);
@@ -400,6 +410,11 @@ export default {
       }
       this.userActionsOnSubForms.discountsForm = UserAction.CREATE;
     },
+    removeDiscount(paramDiscount) {
+      this.userActionsOnSubForms.discountsForm = UserAction.CREATE;
+      let indexOfToBeDeletedDiscount = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values.indexOf(paramDiscount);
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values.splice(indexOfToBeDeletedDiscount, 1);
+    },
     addTag(paramTagToBeInserted) {
       const existingTag = this.listUtils.findItemOfList(
           this.tabForms[Tabs.TAGS].values,
@@ -417,6 +432,12 @@ export default {
           tag => tag === this.selectedTag ? paramTagToBeUpdated : tag
       );
       this.userActionsOnSubForms.tagsForm = UserAction.CREATE;
+    },
+    removeTag(paramTag) {
+      this.userActionsOnSubForms.tagsForm = UserAction.CREATE;
+      let indexOfToBeDeletedTag = this.tabForms[Tabs.TAGS].values.indexOf(paramTag);
+      this.tabForms[Tabs.TAGS].values.splice(indexOfToBeDeletedTag, 1);
+      this.clearInputFields(this.tabForms[Tabs.TAGS].inputFields);
     },
     handleFormActionCampaignItem() {
       return {

@@ -2,9 +2,33 @@
   <div class="list-of-additional-items">
     <p>{{ printOrderedListTitle[this.activeTab] }}</p>
     <ol v-if="this.tabForm.values.length > 0">
-      <li v-for="(item, index) in this.tabForm.values" :key="index" v-if="activeTab === 'Campaign items'" @click="selectCampaignItem(item)">{{ item.promoTitle }}</li>
-      <li v-for="(item, index) in this.tabForm.values" :key="index" v-if="activeTab === 'Tags'" @click="selectTag(item)">{{ item }}</li>
-      <li v-for="(item, index) in this.tabForm.values" :key="index" v-if="activeTab === 'Discounts'" @click="selectDiscount(item)">{{ item.skuIds.join(", ") }}</li>
+      <li v-for="(item, index) in this.tabForm.values" :key="index" v-if="activeTab === 'Campaign items'" @click="selectCampaignItem(item)">
+        {{ item.promoTitle }}
+        <img
+            src="../../assets/images/icons/close.png"
+            alt="remove"
+            style="position: relative; top: 1px;"
+            @click="removeCampaignItem(item)"
+        />
+      </li>
+      <li v-for="(item, index) in this.tabForm.values" :key="index" v-if="activeTab === 'Tags'" @click="selectTag(item)">
+        {{ item }}
+        <img
+            src="../../assets/images/icons/close.png"
+            alt="remove"
+            style="position: relative; top: 1px;"
+            @click="removeTag(item)"
+        />
+      </li>
+      <li v-for="(item, index) in this.tabForm.values" :key="index" v-if="activeTab === 'Discounts'" @click="selectDiscount(item)">
+        {{ item.skuIds.join(", ") }}
+        <img
+            src="../../assets/images/icons/close.png"
+            alt="remove"
+            style="position: relative; top: 1px;"
+            @click="removeDiscount(item)"
+        />
+      </li>
     </ol>
     <p v-else style="color: red; font-weight: bold">De lijst is leeg.</p>
   </div>
@@ -12,7 +36,14 @@
 <script>
 export default {
   name: "AdditionalItemsComponent",
-  emits: ['onSelectCampaignItem', 'onSelectDiscount', "onSelectTag"],
+  emits: [
+      'onSelectCampaignItem',
+      'onSelectDiscount',
+      "onSelectTag",
+      'onRemoveCampaignItem',
+      'onRemoveTag',
+      'onRemoveDiscount'
+  ],
   props: {
     activeTab: {
       type: String,
@@ -41,6 +72,18 @@ export default {
     },
     selectTag(paramTag) {
       this.$emit('onSelectTag', paramTag);
+    },
+    removeCampaignItem(paramCampaignItem) {
+      event.stopPropagation();
+      this.$emit('onRemoveCampaignItem', paramCampaignItem);
+    },
+    removeTag(paramTag) {
+      event.stopPropagation();
+      this.$emit('onRemoveTag', paramTag);
+    },
+    removeDiscount(paramDiscount) {
+      event.stopPropagation();
+      this.$emit('onRemoveDiscount', paramDiscount);
     }
   }
 }
