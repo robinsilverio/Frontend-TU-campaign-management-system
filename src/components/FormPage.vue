@@ -38,7 +38,7 @@
               </div>
               <p>
                 Toegevoegde sku's:
-                <span style="margin-right: 5px" v-for="(sku, index) in tabForm.values">
+                <span style="margin-right: 5px" v-for="(sku, index) in tabForm.values" v-bind:key="index">
                   {{ sku }}
                   <img
                       src="../assets/images/icons/close.png"
@@ -458,9 +458,8 @@ export default {
       this.clearInputFields(this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].inputFields);
     },
     removeSku(paramSku) {
-      let skuList = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].values;
-      let indexOfSku = skuList.indexOf(paramSku);
-      skuList.splice(indexOfSku, 1);
+      let indexOfSku = this.selectedDiscount.skuIds.indexOf(paramSku);
+      this.selectedDiscount.skuIds.splice(indexOfSku, 1);
     }
     ,
     hasUserVisitedCampaignItemsForm() {
