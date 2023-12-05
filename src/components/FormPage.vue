@@ -353,10 +353,12 @@ export default {
       this.loadTagValuesInForm();
     },
     addCampaignItem(paramCampaignItemToBeInserted) {
-      this.tabForms[Tabs.CAMPAIGN_ITEMS].values.push(paramCampaignItemToBeInserted);
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].values = this.listUtils.addItemToList(
+          this.tabForms[Tabs.CAMPAIGN_ITEMS].values, paramCampaignItemToBeInserted);
     },
     updateCampaignItem(paramCampaignItemToBeUpdated) {
-      this.tabForms[Tabs.CAMPAIGN_ITEMS].values = this.tabForms[Tabs.CAMPAIGN_ITEMS].values.map(
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].values = this.listUtils.updateItemToList(
+          this.tabForms[Tabs.CAMPAIGN_ITEMS].values,
           campaignItem => campaignItem.campaignItemId === paramCampaignItemToBeUpdated.campaignItemId ?
               paramCampaignItemToBeUpdated : campaignItem
       );
@@ -364,13 +366,16 @@ export default {
     },
     removeCampaignItem(paramCampaignItem) {
       this.userActionsOnSubForms.campaignItemsForm = UserAction.CREATE;
-      let indexOfToBeDeletedCampaignItem = this.tabForms[Tabs.CAMPAIGN_ITEMS].values.indexOf(paramCampaignItem);
-      this.tabForms[Tabs.CAMPAIGN_ITEMS].values.splice(indexOfToBeDeletedCampaignItem, 1);
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].values = this.listUtils.removeItemFromList(
+          this.tabForms[Tabs.CAMPAIGN_ITEMS].values,
+          paramCampaignItem
+      );
       this.clearInputFields(this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.BASICS].inputFields);
       this.clearInputFields(this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.IMAGES].inputFields);
     },
     addDiscount(paramDiscountToBeInserted) {
-      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values.push(paramDiscountToBeInserted);
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values = this.listUtils.addItemToList(
+          this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values, paramDiscountToBeInserted);
     },
     updateDiscount(paramDiscountToBeUpdated, paramInputFieldsForDeterminingDiscountType) {
 
@@ -412,8 +417,21 @@ export default {
     },
     removeDiscount(paramDiscount) {
       this.userActionsOnSubForms.discountsForm = UserAction.CREATE;
-      let indexOfToBeDeletedDiscount = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values.indexOf(paramDiscount);
-      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values.splice(indexOfToBeDeletedDiscount, 1);
+      this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values = this.listUtils.removeItemFromList(
+          this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].values,
+          paramDiscount
+      );
+    },
+    addSku() {
+      this.validateSkuInputField();
+      if (this.hasValidationErrors()) return;
+      let skuList = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].values;
+      let skuId = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].inputFields[0].value;
+      skuList = this.listUtils.addItemToList(skuList, skuId);
+      this.clearInputFields(this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].inputFields);
+    },
+    removeSku(paramSku) {
+      this.selectedDiscount.skuIds = this.listUtils.removeItemFromList(this.selectedDiscount.skuIds, paramSku);
     },
     addTag(paramTagToBeInserted) {
       const existingTag = this.listUtils.findItemOfList(
@@ -423,7 +441,7 @@ export default {
       if (existingTag !== undefined) {
         this.$toast.warning('Deze tag bestaat al.');
       } else {
-        this.tabForms[Tabs.TAGS].values.push(paramTagToBeInserted);
+        this.tabForms[Tabs.TAGS].values = this.listUtils.addItemToList(this.tabForms[Tabs.TAGS].values, paramTagToBeInserted);
       }
     },
     updateTag(paramTagToBeUpdated) {
@@ -435,8 +453,10 @@ export default {
     },
     removeTag(paramTag) {
       this.userActionsOnSubForms.tagsForm = UserAction.CREATE;
-      let indexOfToBeDeletedTag = this.tabForms[Tabs.TAGS].values.indexOf(paramTag);
-      this.tabForms[Tabs.TAGS].values.splice(indexOfToBeDeletedTag, 1);
+      this.tabForms[Tabs.TAGS].values = this.listUtils.removeItemFromList(
+          this.tabForms[Tabs.TAGS].values,
+          paramTag
+      );
       this.clearInputFields(this.tabForms[Tabs.TAGS].inputFields);
     },
     handleFormActionCampaignItem() {
@@ -470,19 +490,6 @@ export default {
         }
       }
     },
-    addSku() {
-      this.validateSkuInputField();
-      if (this.hasValidationErrors()) return;
-      let skuList = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].values;
-      let skuId = this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].inputFields[0].value;
-      skuList.push(skuId);
-      this.clearInputFields(this.tabForms[Tabs.CAMPAIGN_ITEMS].subTabs[Tabs.DISCOUNTS].inputFields[0].inputFields);
-    },
-    removeSku(paramSku) {
-      let indexOfSku = this.selectedDiscount.skuIds.indexOf(paramSku);
-      this.selectedDiscount.skuIds.splice(indexOfSku, 1);
-    }
-    ,
     hasUserVisitedCampaignItemsForm() {
       return this.activeTab.mainTab === Tabs.CAMPAIGN_ITEMS && this.activeTab.subTab !== Tabs.DISCOUNTS;
     },
