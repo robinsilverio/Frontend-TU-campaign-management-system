@@ -64,7 +64,7 @@ Below are the steps for ensuring the app deployment:
 
 #### Step 1 - Ensure that a Dockerfile and compose file are stored in the project structure.
 For now it is not needed, but if there are absence of these files, you must add these.
-Dockerfile:
+Dockerfile (store this in project root):
 ```
 # Choose the Image which has Node installed already
 FROM node:lts-alpine AS build-stage
@@ -95,7 +95,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 5173
 CMD ["nginx", "-g", "daemon off;"]
 ```
-Compose file (store this in a sub directory _docker/_ inside the project structure):
+docker-compose-campaign-admin-frontend-local.yml (store this in a sub directory _docker/_ inside the project structure):
 ```yml
 version: '3.0'
 services:
@@ -104,6 +104,41 @@ services:
     ports:
       - "5173:5173"
     restart: always
+```
+nginx.conf (store this also in project root):
+```
+user nginx;
+worker_processes 1;
+error_log /var/log/nginx/error.log warn;
+pid /var/run/nginx.pid;
+events {
+    worker_connections 1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+    access_log  /var/log/nginx/access.log  main;
+    sendfile        on;
+    keepalive_timeout  65;
+    server {
+
+        listen 5173;
+
+        location /campaign-management-frontend {
+            root /app;
+            index index.html;
+            try_files $uri $uri/ /campaign-management-frontend/index.html =404;
+        }
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+    }
+}
 ```
 #### Step 2 - Open terminal and navigate to the project.
 Use command ```cd <path to the project>```
