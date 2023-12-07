@@ -161,7 +161,7 @@ If you want to stop the deployment locally, then issue this command to stop it.
 docker-compose -f <path to compose yml-file> down
 ```
 
-## Troubleshoot
+## 5. Troubleshoot
 Sometimes it can be a hard time and time consuming to find solutions for problems that
 you encounter. But lets list a couple of problems with its solutions that happens during development.
 
@@ -173,4 +173,4 @@ error during connect: this error may indicate that the docker daemon is not runn
  bestand niet vinden.
 ```
 If you see this warning when issuing a command like _docker ps_. It means that a docker-daemon (engine) is not running.
-For that, you should open Docker Desktop.
+For that, you should open Docker Desktop first.
