@@ -1,4 +1,11 @@
 import Cookies from "js-cookie";
 export default function getAuthorizationToken() {
-    return "Bearer " + Cookies.get("jwtToken");
+
+    let jwtToken = Cookies.get('jwtToken');
+
+    if (!jwtToken) {
+        return null
+    }
+
+    return "Bearer " + jwtToken;
 }
