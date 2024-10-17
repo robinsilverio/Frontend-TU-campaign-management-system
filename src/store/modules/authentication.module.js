@@ -3,18 +3,17 @@ import store from '../../store'
 import Cookies from 'js-cookie'
 
 const authService = new AuthService();
-const user = (Cookies.get('user') && Cookies.get('user') !== "undefined") ? JSON.parse(Cookies.get('user')): null;
-const initialState = user
-? { status: { loggedIn: true }, user }
-: { status: { loggedIn: false }, user: null };
 
 export const authentication = {
     state: {
-        userState: initialState
+        userState: { status: { loggedIn: !!Cookies.get('jwtToken') } }
     },
     getters: {
         getUserState(state) {
             return state.userState
+        },
+        isAuthenticated(state) {
+            return state.userState.loggedIn;
         }
     },
     actions: {
@@ -22,9 +21,9 @@ export const authentication = {
             const BASE_URL = store.getters.getBaseUrl;
             return authService.login(paramUser, BASE_URL)
             .then(
-                user => {
-                    commit('mutateLoginSuccess', user);
-                    return Promise.resolve(user);
+                success => {
+                    commit('mutateLoginSuccess', success.data.token);
+                    return Promise.resolve(success);
                 },
                 error => {
                     return Promise.reject(error);
@@ -33,17 +32,19 @@ export const authentication = {
         },
         logout({ commit }) {
             commit('mutateLogout');
-            authService.logout();
         }
     },
     mutations : {
-        mutateLoginSuccess(state, user) {
+        mutateLoginSuccess(state, paramToken) {
+            Cookies.set('jwtToken', paramToken, {
+                expires: 3,
+                secure: true,
+            });
             state.userState.status.loggedIn = true;
-            state.userState.user = user;
         },
         mutateLogout(state) {
+            Cookies.remove('jwtToken');
             state.userState.status.loggedIn = false;
-            state.userState.user = null;
         },
     }
 }

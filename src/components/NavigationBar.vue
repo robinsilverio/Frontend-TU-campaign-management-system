@@ -14,13 +14,26 @@
 </template>
 <script>
 import store from "@/store";
+import { jwtDecode } from "jwt-decode";
+import Cookies from 'js-cookie';
 
 export default {
     name: 'NavigationBar',
     computed: {
       displayUsername() {
-        return (store.getters.getUserState.user !== null) ?
-            store.getters.getUserState.user.username : '';
+
+        const token = Cookies.get('jwtToken');
+        
+        if (token) {
+          try {
+            const decodedToken = jwtDecode(token); // Decode the JWT
+            return decodedToken.sub; // Assuming 'sub' contains the username (like "T14832")
+          } catch (error) {
+            console.error('Failed to decode JWT:', error);
+            return '';
+          }
+        }
+        return '';
       }
     },
     methods: {

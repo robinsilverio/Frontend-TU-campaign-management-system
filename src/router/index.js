@@ -4,8 +4,7 @@ import AdminView from '../views/AdminView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
 import AccessDenied from "@/views/AccessDenied.vue";
 import store from "@/store";
-import getAuthorizationToken from '../services/auth-header-service';
-import axios from 'axios';
+import getAuthorizationToken, { validateJwt } from '../services/auth-header-service';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,20 +33,15 @@ const router = createRouter({
   ]
 });
 
-const validateJwt = async(token) => {     
-  return await axios.get(`${store.getters.getBaseUrl}auth/validateJwt?paramToken=${token}`)
-  .then(res =>  res.status === 200 ? res.data.roles[0] : '')
-  .catch(err => '');
-}
-
 // This is for handling unauthorized access.
 router.beforeEach((to, from, next) => {
   const publicPages = ['/', '/home'];
   const authRequired = !publicPages.includes(to.path);
   const rolesAllowed = ['ROLE_SUPER_USER_E-SALES'];
   const token = getAuthorizationToken();
+  const isAuthenticated = store.getters.getUserState.status.loggedIn;  
   
-  if (token) {
+  if (isAuthenticated) {
     validateJwt(token.split(" ")[1])
     .then(response => {
       if (to.path === '/' && rolesAllowed.includes(response)) {
